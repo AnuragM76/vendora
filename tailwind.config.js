@@ -1,0 +1,88 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        background: "#FAF8F5",
+        surface: "#FFFFFF",
+        charcoal: {
+          50: "#F6F6F6",
+          100: "#E7E7E7",
+          200: "#D1D1D1",
+          300: "#B0B0B0",
+          400: "#888888",
+          600: "#555555",
+          700: "#3D3D3D",
+          800: "#262626",
+          900: "#171717",
+          950: "#0D0D0E",
+        },
+        coral: {
+          50: "#FDF5F2",
+          100: "#FBECE7",
+          200: "#F6D6CC",
+          300: "#EEB6A6",
+          400: "#DE8A73",
+          500: "#C96B55",
+          600: "#B6543D",
+          700: "#98422E",
+          800: "#7C3727",
+          900: "#673124",
+        },
+        gold: {
+          50: "#FCF9F1",
+          100: "#F8F2DF",
+          200: "#EFE2BA",
+          300: "#E4CE8E",
+          400: "#D7B767",
+          500: "#C9A45C",
+          600: "#AD8545",
+          700: "#8A6436",
+          800: "#715130",
+          900: "#5E432A",
+        },
+        ai: {
+          50: "#F5F3FF",
+          100: "#EDE9FE",
+          200: "#DDD6FE",
+          300: "#C4B5FD",
+          400: "#A78BFA",
+          500: "#7667C8",
+          600: "#6050B8",
+          700: "#4D3E9E",
+          800: "#3E3280",
+          900: "#2C245D",
+        },
+        ivory: {
+          50: "#FDFCFB",
+          100: "#FAF8F5",
+          200: "#F5F2EB",
+          300: "#ECE6DB",
+          400: "#DDD4C4",
+        },
+        borderBase: "#E8E3DD",
+        emeraldGreen: "#3D8B68",
+      },
+      fontFamily: {
+        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        'subtle': '0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04)',
+        'card': '0 4px 20px -2px rgba(23, 23, 23, 0.05), 0 2px 6px -1px rgba(23, 23, 23, 0.03)',
+        'elevated': '0 12px 32px -4px rgba(23, 23, 23, 0.08), 0 4px 12px -2px rgba(23, 23, 23, 0.04)',
+        'floating': '0 20px 40px -6px rgba(23, 23, 23, 0.12), 0 8px 16px -4px rgba(23, 23, 23, 0.06)',
+      },
+      borderRadius: {
+        'xl': '1rem',
+        '2xl': '1.25rem',
+        '3xl': '1.5rem',
+      }
+    },
+  },
+  plugins: [],
+}
