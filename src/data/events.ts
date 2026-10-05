@@ -2,7 +2,7 @@ import { EventPlan } from '../types';
 
 export const defaultEvent: EventPlan = {
   id: 'ev-demo-1',
-  name: 'Anurag & Meera Wedding Celebration',
+  name: 'Anurag & Shravani Wedding Celebration',
   eventType: 'Wedding',
   date: '2026-12-24',
   location: 'Pune',

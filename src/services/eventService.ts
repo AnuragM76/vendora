@@ -9,7 +9,12 @@ export const eventService = {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        if (parsed.name && parsed.name.includes('Meera')) {
+          parsed.name = parsed.name.replace('Meera', 'Shravani');
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        }
+        return parsed;
       }
     } catch {
       // fallback

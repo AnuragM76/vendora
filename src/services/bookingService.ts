@@ -8,7 +8,18 @@ export const bookingService = {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed: Booking[] = JSON.parse(stored);
+        let modified = false;
+        parsed.forEach(b => {
+          if (b.eventName && b.eventName.includes('Meera')) {
+            b.eventName = b.eventName.replace('Meera', 'Shravani');
+            modified = true;
+          }
+        });
+        if (modified) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        }
+        return parsed;
       }
     } catch {
       // fallback

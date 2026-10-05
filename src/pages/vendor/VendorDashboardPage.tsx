@@ -36,7 +36,7 @@ export const VendorDashboardPage: React.FC = () => {
   const [requests, setRequests] = useState<BookingRequest[]>([
     {
       id: 'req-1',
-      clientName: 'Anurag Sharma & Meera',
+      clientName: 'Anurag Sharma & Shravani',
       event: 'Wedding Celebration (Pune)',
       date: '24 Dec 2026',
       guestCount: 300,

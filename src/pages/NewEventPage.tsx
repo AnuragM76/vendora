@@ -221,7 +221,7 @@ export const NewEventPage: React.FC = () => {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="E.g., Anurag & Meera Wedding Celebration"
+                  placeholder="E.g., Anurag & Shravani Wedding Celebration"
                   className="w-full bg-ivory-50 border border-borderBase rounded-xl px-4 py-3 text-xs sm:text-sm font-semibold text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-coral-500"
                 />
               </div>
