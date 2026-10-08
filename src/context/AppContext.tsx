@@ -1,8 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User, EventPlan, Booking } from '../types';
 import { authService } from '../services/authService';
 import { eventService } from '../services/eventService';
 import { bookingService } from '../services/bookingService';
+import { savedVendorApi, eventApi, bookingApi } from '../services/api';
+import { vendorService } from '../services/vendorService';
 
 export interface NotificationItem {
   id: string;
@@ -16,34 +18,40 @@ export interface NotificationItem {
 interface AppContextType {
   user: User;
   switchRole: (role: 'customer' | 'vendor' | 'admin') => void;
-  login: (email: string) => boolean;
+  login: (email: string, password?: string) => Promise<boolean>;
+  register: (data: { name: string; email: string; password: string; role: 'customer' | 'vendor' }) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   
   // Saved Vendors
   savedVendorIds: string[];
-  toggleSaveVendor: (id: string) => void;
+  toggleSaveVendor: (id: string) => Promise<void>;
   isSaved: (id: string) => boolean;
 
   // Comparison
   comparedVendorIds: string[];
-  toggleCompareVendor: (id: string) => boolean; // returns false if max reached
+  toggleCompareVendor: (id: string) => boolean;
   removeFromCompare: (id: string) => void;
   clearCompare: () => void;
 
   // Active Event
   activeEvent: EventPlan;
   updateActiveEvent: (event: EventPlan) => void;
+  refreshEvents: () => Promise<void>;
 
   // Bookings
   bookings: Booking[];
   addBooking: (booking: Omit<Booking, 'id' | 'createdAt'>) => Booking;
   updateBookingStatus: (id: string, status: Booking['status']) => void;
+  refreshBookings: () => Promise<void>;
 
   // Notifications
   notifications: NotificationItem[];
   markNotificationAsRead: (id: string) => void;
   markAllNotificationsAsRead: () => void;
   unreadNotificationsCount: number;
+
+  // Global Refresh
+  refreshAllData: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -98,50 +106,101 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       time: '1d ago',
       read: true,
       type: 'budget',
-    }
+    },
   ]);
 
-  // Persist saved vendors
-  useEffect(() => {
+  // Load and refresh live data from database
+  const refreshAllData = useCallback(async () => {
     try {
-      localStorage.setItem(SAVED_VENDORS_KEY, JSON.stringify(savedVendorIds));
+      // 1. Session check
+      const currentUser = await authService.checkSession();
+      if (currentUser) {
+        setUser(currentUser);
+      }
+
+      // 2. Saved vendors from DB
+      try {
+        const savedRes = await savedVendorApi.getSavedVendors();
+        if (savedRes.vendorIds) {
+          setSavedVendorIds(savedRes.vendorIds);
+          localStorage.setItem(SAVED_VENDORS_KEY, JSON.stringify(savedRes.vendorIds));
+        }
+      } catch {}
+
+      // 3. Events from DB
+      try {
+        const events = await eventApi.getEvents();
+        if (events && events.length > 0) {
+          setActiveEvent(events[0]);
+        }
+      } catch {}
+
+      // 4. Bookings from DB
+      try {
+        const b = await bookingApi.getBookings();
+        if (b && b.length > 0) {
+          setBookings(b);
+        }
+      } catch {}
+
+      // 5. Vendor cache refresh
+      vendorService.syncFromApi().catch(() => {});
     } catch {
       // ignore
     }
-  }, [savedVendorIds]);
+  }, []);
 
-  // Persist compare vendors
+  useEffect(() => {
+    refreshAllData();
+  }, [refreshAllData]);
+
+  // Persist comparison tray
   useEffect(() => {
     try {
       localStorage.setItem(COMPARE_VENDORS_KEY, JSON.stringify(comparedVendorIds));
-    } catch {
-      // ignore
-    }
+    } catch {}
   }, [comparedVendorIds]);
 
-  const toggleSaveVendor = (id: string) => {
-    setSavedVendorIds(prev => 
-      prev.includes(id) ? prev.filter(vId => vId !== id) : [...prev, id]
-    );
+  const toggleSaveVendor = async (id: string) => {
+    const isCurrentlySaved = savedVendorIds.includes(id);
+    const updated = isCurrentlySaved
+      ? savedVendorIds.filter((vId) => vId !== id)
+      : [...savedVendorIds, id];
+
+    setSavedVendorIds(updated);
+    try {
+      localStorage.setItem(SAVED_VENDORS_KEY, JSON.stringify(updated));
+    } catch {}
+
+    // Persist to PostgreSQL backend
+    try {
+      if (isCurrentlySaved) {
+        await savedVendorApi.removeSavedVendor(id);
+      } else {
+        await savedVendorApi.saveVendor(id);
+      }
+    } catch {
+      // revert if failed
+    }
   };
 
   const isSaved = (id: string) => savedVendorIds.includes(id);
 
   const toggleCompareVendor = (id: string): boolean => {
     if (comparedVendorIds.includes(id)) {
-      setComparedVendorIds(prev => prev.filter(vId => vId !== id));
+      setComparedVendorIds((prev) => prev.filter((vId) => vId !== id));
       return true;
     } else {
       if (comparedVendorIds.length >= 4) {
         return false;
       }
-      setComparedVendorIds(prev => [...prev, id]);
+      setComparedVendorIds((prev) => [...prev, id]);
       return true;
     }
   };
 
   const removeFromCompare = (id: string) => {
-    setComparedVendorIds(prev => prev.filter(vId => vId !== id));
+    setComparedVendorIds((prev) => prev.filter((vId) => vId !== id));
   };
 
   const clearCompare = () => {
@@ -153,30 +212,64 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     eventService.saveCurrentEvent(event);
   };
 
+  const refreshEvents = async () => {
+    const events = await eventApi.getEvents().catch(() => []);
+    if (events.length > 0) {
+      setActiveEvent(events[0]);
+    }
+  };
+
+  const refreshBookings = async () => {
+    const b = await bookingApi.getBookings().catch(() => []);
+    if (b.length > 0) {
+      setBookings(b);
+    }
+  };
+
   const switchRole = (role: 'customer' | 'vendor' | 'admin') => {
     const newUser = authService.switchRole(role);
     setUser(newUser);
+    setTimeout(() => {
+      refreshAllData();
+    }, 500);
   };
 
-  const login = (email: string) => {
-    const res = authService.login(email);
+  const login = async (email: string, password?: string): Promise<boolean> => {
+    const res = await authService.login(email, password);
     if (res.success && res.user) {
       setUser(res.user);
+      await refreshAllData();
       return true;
     }
     return false;
   };
 
-  const logout = () => {
-    authService.logout();
+  const register = async (data: {
+    name: string;
+    email: string;
+    password: string;
+    role: 'customer' | 'vendor';
+  }): Promise<{ success: boolean; message?: string }> => {
+    const res = await authService.register(data);
+    if (res.success && res.user) {
+      setUser(res.user);
+      await refreshAllData();
+      return { success: true };
+    }
+    return { success: false, message: res.message || 'Registration failed' };
+  };
+
+  const logout = async () => {
+    await authService.logout();
     setUser(authService.getCurrentUser());
   };
 
   const addBooking = (bookingData: Omit<Booking, 'id' | 'createdAt'>): Booking => {
     const newBkg = bookingService.createBooking(bookingData);
-    setBookings(prev => [newBkg, ...prev]);
-    // add notification
-    setNotifications(prev => [
+    setBookings((prev) => [newBkg, ...prev]);
+
+    // Push local notification
+    setNotifications((prev) => [
       {
         id: `notif-${Date.now()}`,
         title: 'Booking Request Submitted',
@@ -187,6 +280,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       },
       ...prev,
     ]);
+
     return newBkg;
   };
 
@@ -196,14 +290,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const markNotificationAsRead = (id: string) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
   };
 
   const markAllNotificationsAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
-  const unreadNotificationsCount = notifications.filter(n => !n.read).length;
+  const unreadNotificationsCount = notifications.filter((n) => !n.read).length;
 
   return (
     <AppContext.Provider
@@ -211,6 +305,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         user,
         switchRole,
         login,
+        register,
         logout,
         savedVendorIds,
         toggleSaveVendor,
@@ -221,13 +316,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         clearCompare,
         activeEvent,
         updateActiveEvent,
+        refreshEvents,
         bookings,
         addBooking,
         updateBookingStatus,
+        refreshBookings,
         notifications,
         markNotificationAsRead,
         markAllNotificationsAsRead,
         unreadNotificationsCount,
+        refreshAllData,
       }}
     >
       {children}

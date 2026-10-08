@@ -19,10 +19,12 @@ import {
 import { useApp } from '../context/AppContext';
 import { EventPlan, EventType, CategoryType } from '../types';
 import { formatINR } from '../components/common/PriceDisplay';
+import { eventApi } from '../services/api';
 
 export const NewEventPage: React.FC = () => {
   const navigate = useNavigate();
   const { activeEvent, updateActiveEvent } = useApp();
+  const [submitting, setSubmitting] = useState(false);
 
   const [step, setStep] = useState(1);
 
@@ -63,23 +65,43 @@ export const NewEventPage: React.FC = () => {
     );
   };
 
-  const handleFinalSubmit = () => {
-    const newPlan: EventPlan = {
-      id: `ev-${Date.now()}`,
-      name,
-      eventType,
-      date,
-      location,
-      guestCount,
-      totalBudget,
-      budgetAllocations: allocations,
-      neededCategories,
-      preferences,
-      createdAt: new Date().toISOString().split('T')[0],
-    };
+  const handleFinalSubmit = async () => {
+    setSubmitting(true);
+    try {
+      const created = await eventApi.createEvent({
+        name,
+        eventType,
+        date,
+        location,
+        guestCount,
+        totalBudget,
+        budgetAllocations: allocations,
+        neededCategories,
+        preferences,
+        notes: '',
+      });
+      updateActiveEvent(created);
+      navigate('/recommendations');
+    } catch {
+      const newPlan: EventPlan = {
+        id: `ev-${Date.now()}`,
+        name,
+        eventType,
+        date,
+        location,
+        guestCount,
+        totalBudget,
+        budgetAllocations: allocations,
+        neededCategories,
+        preferences,
+        createdAt: new Date().toISOString().split('T')[0],
+      };
 
-    updateActiveEvent(newPlan);
-    navigate('/recommendations');
+      updateActiveEvent(newPlan);
+      navigate('/recommendations');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const eventTypeCards: { type: EventType; desc: string; icon: any }[] = [

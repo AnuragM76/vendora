@@ -23,8 +23,16 @@ export const CustomerProfilePage: React.FC = () => {
   const [city, setCity] = useState(user.city || 'Pune');
   const [savedSuccess, setSavedSuccess] = useState(false);
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      await fetch('/api/users/profile', {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone, city }),
+      });
+    } catch {}
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 2500);
   };

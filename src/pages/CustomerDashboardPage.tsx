@@ -33,11 +33,13 @@ export const CustomerDashboardPage: React.FC = () => {
 
   const recommendedVendors = vendorService.getFeaturedVendors().slice(0, 3);
 
-  // Budget calculations
+  // Budget calculations from real booking data (section 63)
   const totalBudget = activeEvent.totalBudget || 250000;
-  const allocatedBudget = 165000;
-  const remainingBudget = totalBudget - allocatedBudget;
-  const usedPercentage = Math.round((allocatedBudget / totalBudget) * 100);
+  const allocatedBudget = bookings
+    .filter(b => b.status === 'Confirmed' || b.status === 'Pending')
+    .reduce((sum, b) => sum + b.amount, 0);
+  const remainingBudget = Math.max(0, totalBudget - allocatedBudget);
+  const usedPercentage = totalBudget > 0 ? Math.min(100, Math.round((allocatedBudget / totalBudget) * 100)) : 0;
 
   // Planning Milestones
   const progressMilestones = [

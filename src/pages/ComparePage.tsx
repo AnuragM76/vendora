@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { vendorApi } from '../services/api';
+import { Vendor } from '../types';
 import { Link } from 'react-router-dom';
 import { 
   Scale, 
@@ -26,9 +28,25 @@ export const ComparePage: React.FC = () => {
   const { comparedVendorIds, removeFromCompare, toggleCompareVendor, clearCompare, activeEvent } = useApp();
   const [addVendorModalOpen, setAddVendorModalOpen] = useState(false);
 
-  const vendors = comparedVendorIds
-    .map(id => vendorService.getVendorById(id))
-    .filter(Boolean) as typeof mockVendors;
+  const [apiVendors, setApiVendors] = useState<Vendor[]>([]);
+
+  useEffect(() => {
+    if (comparedVendorIds.length > 0) {
+      vendorApi.compareVendors(comparedVendorIds).then((res) => {
+        if (res && res.length > 0) {
+          setApiVendors(res);
+        }
+      }).catch(() => {});
+    } else {
+      setApiVendors([]);
+    }
+  }, [comparedVendorIds]);
+
+  const vendors = apiVendors.length > 0 ? apiVendors : (
+    comparedVendorIds
+      .map(id => vendorService.getVendorById(id))
+      .filter(Boolean) as typeof mockVendors
+  );
 
   // Calculate dynamic matches
   const vendorsWithMatch = vendors.map(v => ({

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const LoginPage: React.FC = () => {
@@ -8,32 +8,43 @@ export const LoginPage: React.FC = () => {
   const { login } = useApp();
 
   const [email, setEmail] = useState('demo@vendora.app');
-  const [password, setPassword] = useState('password123');
+  const [password, setPassword] = useState('Demo@12345');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
       setError('Please enter your email address.');
       return;
     }
-    const success = login(email);
-    if (success) {
-      if (email.includes('vendor')) {
-        navigate('/vendor/dashboard');
-      } else if (email.includes('admin')) {
-        navigate('/admin');
+    setError('');
+    setLoading(true);
+
+    try {
+      const success = await login(email, password);
+      if (success) {
+        const clean = email.toLowerCase();
+        if (clean.includes('vendor')) {
+          navigate('/vendor/dashboard');
+        } else if (clean.includes('admin')) {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
-        navigate('/dashboard');
+        setError('Invalid email or password. Please check your credentials and try again.');
       }
-    } else {
-      setError('Could not sign in. Please try one of the demo credentials below.');
+    } catch (err: any) {
+      setError(err.message || 'Unable to sign in. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleQuickFill = (demoEmail: string) => {
+  const handleQuickFill = (demoEmail: string, demoPass: string) => {
     setEmail(demoEmail);
-    setPassword('demo123');
+    setPassword(demoPass);
     setError('');
   };
 
@@ -84,9 +95,6 @@ export const LoginPage: React.FC = () => {
               <label className="text-xs font-bold uppercase tracking-wider text-charcoal-700">
                 Password
               </label>
-              <span className="text-[11px] text-coral-600 hover:underline cursor-pointer">
-                Forgot password?
-              </span>
             </div>
             <input
               type="password"
@@ -100,22 +108,32 @@ export const LoginPage: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full py-3 bg-charcoal-900 hover:bg-coral-500 text-white rounded-xl text-xs font-bold shadow-subtle transition-all flex items-center justify-center gap-2"
+            disabled={loading}
+            className="w-full py-3 bg-charcoal-900 hover:bg-coral-500 text-white rounded-xl text-xs font-bold shadow-subtle transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            <span>Log In</span>
-            <ArrowRight className="w-4 h-4" />
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Signing In...</span>
+              </>
+            ) : (
+              <>
+                <span>Sign In</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
         </form>
 
-        {/* Demo Mode Quick Accounts (Section 49) */}
+        {/* Demo Mode Quick Accounts */}
         <div className="pt-4 border-t border-borderBase space-y-2">
           <span className="text-[11px] uppercase font-bold tracking-wider text-charcoal-400 block text-center">
-            Demo Prototype 1-Click Access
+            Demo Credentials (1-Click Fill)
           </span>
           <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
-              onClick={() => handleQuickFill('demo@vendora.app')}
+              onClick={() => handleQuickFill('demo@vendora.app', 'Demo@12345')}
               className="p-2 rounded-xl border border-borderBase hover:border-coral-500 bg-ivory-50 text-center transition-colors"
             >
               <span className="text-xs font-bold text-charcoal-900 block">Customer</span>
@@ -123,7 +141,7 @@ export const LoginPage: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => handleQuickFill('vendor@vendora.app')}
+              onClick={() => handleQuickFill('vendor@vendora.app', 'Vendor@12345')}
               className="p-2 rounded-xl border border-borderBase hover:border-coral-500 bg-ivory-50 text-center transition-colors"
             >
               <span className="text-xs font-bold text-charcoal-900 block">Vendor</span>
@@ -131,7 +149,7 @@ export const LoginPage: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => handleQuickFill('admin@vendora.app')}
+              onClick={() => handleQuickFill('admin@vendora.app', 'Admin@12345')}
               className="p-2 rounded-xl border border-borderBase hover:border-coral-500 bg-ivory-50 text-center transition-colors"
             >
               <span className="text-xs font-bold text-charcoal-900 block">Admin</span>

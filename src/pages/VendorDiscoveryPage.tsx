@@ -11,9 +11,10 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { vendorService, VendorFilterOptions } from '../services/vendorService';
+import { vendorApi } from '../services/api';
 import { VendorCard } from '../components/vendor/VendorCard';
 import { FilterSidebar } from '../components/vendor/FilterSidebar';
-import { CategoryType } from '../types';
+import { CategoryType, Vendor } from '../types';
 import { useApp } from '../context/AppContext';
 
 export const VendorDiscoveryPage: React.FC = () => {
@@ -49,12 +50,27 @@ export const VendorDiscoveryPage: React.FC = () => {
     }
   }, [searchParams]);
 
-  const vendors = useMemo(() => {
-    return vendorService.getVendors({
-      ...filters,
-      searchQuery,
-    });
+  const [dbVendors, setDbVendors] = useState<Vendor[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+    vendorApi
+      .getVendors({ ...filters, searchQuery })
+      .then((res) => {
+        if (mounted && res.vendors) {
+          setDbVendors(res.vendors);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      mounted = false;
+    };
   }, [filters, searchQuery]);
+
+  const vendors = dbVendors.length > 0 ? dbVendors : vendorService.getVendors({
+    ...filters,
+    searchQuery,
+  });
 
   const handleResetFilters = () => {
     setFilters({

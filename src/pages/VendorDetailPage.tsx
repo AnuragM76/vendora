@@ -30,6 +30,7 @@ import { MatchScoreBadge } from '../components/common/MatchScoreBadge';
 import { AiMatchBreakdownModal } from '../components/common/AiMatchBreakdownModal';
 import { VendorCard } from '../components/vendor/VendorCard';
 import { VendorPackage } from '../types';
+import { reviewApi } from '../services/api';
 
 export const VendorDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -95,8 +96,16 @@ export const VendorDetailPage: React.FC = () => {
     }, 2000);
   };
 
-  const handleReviewSubmit = (e: React.FormEvent) => {
+  const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      await reviewApi.submitReview({
+        vendorId: vendor.id,
+        rating: reviewRating,
+        comment: reviewComment,
+        eventType: activeEvent.eventType,
+      });
+    } catch {}
     setReviewSubmitted(true);
     setTimeout(() => {
       setReviewModalOpen(false);

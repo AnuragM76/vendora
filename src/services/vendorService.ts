@@ -1,5 +1,6 @@
 import { mockVendors } from '../data/vendors';
 import { Vendor, CategoryType } from '../types';
+import { vendorApi } from './api';
 
 export interface VendorFilterOptions {
   category?: CategoryType | 'All';
@@ -15,9 +16,52 @@ export interface VendorFilterOptions {
   sortBy?: 'recommended' | 'rating' | 'price-low' | 'price-high' | 'experience' | 'reviews';
 }
 
+let cachedVendors: Vendor[] = [...mockVendors];
+let isSyncing = false;
+
+// Trigger an initial background sync from the database
+(async () => {
+  try {
+    const res = await vendorApi.getVendors({ limit: 100 });
+    if (res.vendors && res.vendors.length > 0) {
+      cachedVendors = res.vendors;
+    }
+  } catch {
+    // Graceful fallback to mock data if backend is offline
+  }
+})();
+
 export const vendorService = {
+  syncFromApi: async (): Promise<Vendor[]> => {
+    if (isSyncing) return cachedVendors;
+    isSyncing = true;
+    try {
+      const res = await vendorApi.getVendors({ limit: 100 });
+      if (res.vendors && res.vendors.length > 0) {
+        cachedVendors = res.vendors;
+      }
+    } catch {
+      // ignore
+    } finally {
+      isSyncing = false;
+    }
+    return cachedVendors;
+  },
+
+  getVendorsAsync: async (filters?: VendorFilterOptions): Promise<Vendor[]> => {
+    try {
+      const res = await vendorApi.getVendors(filters);
+      if (res.vendors && res.vendors.length > 0) {
+        return res.vendors;
+      }
+    } catch {
+      // fallback to sync method
+    }
+    return vendorService.getVendors(filters);
+  },
+
   getVendors: (filters?: VendorFilterOptions): Vendor[] => {
-    let result = [...mockVendors];
+    let result = [...cachedVendors];
 
     if (!filters) return result;
 
@@ -33,7 +77,7 @@ export const vendorService = {
     }
 
     if (filters.category && filters.category !== 'All') {
-      result = result.filter(v => v.category === filters.category);
+      result = result.filter(v => v.category.toLowerCase() === filters.category!.toLowerCase());
     }
 
     if (filters.location && filters.location !== 'All') {
@@ -90,8 +134,7 @@ export const vendorService = {
         break;
       case 'recommended':
       default:
-        // Default sort by rating * reviews
-        result.sort((a, b) => (b.rating * Math.log(b.reviewCount)) - (a.rating * Math.log(a.reviewCount)));
+        result.sort((a, b) => (b.rating * Math.log(b.reviewCount || 2)) - (a.rating * Math.log(a.reviewCount || 2)));
         break;
     }
 
@@ -99,11 +142,21 @@ export const vendorService = {
   },
 
   getVendorById: (id: string): Vendor | undefined => {
-    return mockVendors.find(v => v.id === id);
+    return cachedVendors.find(v => v.id === id);
+  },
+
+  getVendorByIdAsync: async (id: string): Promise<Vendor | undefined> => {
+    try {
+      const vendor = await vendorApi.getVendorById(id);
+      if (vendor) return vendor;
+    } catch {
+      // fallback
+    }
+    return cachedVendors.find(v => v.id === id);
   },
 
   getFeaturedVendors: (): Vendor[] => {
-    return mockVendors.filter(v => v.featured);
+    return cachedVendors.filter(v => v.featured);
   },
 
   getCategories: (): CategoryType[] => {
@@ -115,7 +168,7 @@ export const vendorService = {
       'Makeup',
       'DJ',
       'Videography',
-      'Event Planning'
+      'Event Planning',
     ];
   },
 

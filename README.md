@@ -2,220 +2,182 @@
 
 > *"Plan your perfect event. Find the perfect vendors."*
 
-A production-quality frontend prototype for an intelligent event planning and vendor discovery platform built for modern celebrations in India (Weddings, Engagements, Anniversaries, Corporate Galas, and Milestone Parties).
+A production-ready full-stack platform for intelligent event planning, vendor discovery, multi-criteria recommendation scoring, side-by-side comparison matrix, and end-to-end booking lifecycle management across India (Pune, Mumbai, Bengaluru, Nashik, Hyderabad).
 
 ---
 
-## 🌟 Key Highlights & Product Story
+## 🌟 Full-Stack Architecture
 
-VENDORA is designed around the core principle:
-
-> **"An intelligent event planning assistant that happens to have a vendor marketplace."**
-
-The platform guides users through an intuitive discovery and booking lifecycle:
-`DISCOVER` ➔ `UNDERSTAND` ➔ `COMPARE` ➔ `DECIDE` ➔ `BOOK`
+```text
+                             VERCEL
+                                │
+               ┌────────────────┴────────────────┐
+               │                                 │
+            FRONTEND                            API
+          React 18 + Vite               Express / Serverless
+          Tailwind CSS                  HTTP-only Session Cookies
+               │                                 │
+               └────────────────┬────────────────┘
+                                │
+                              Prisma
+                                │
+                                ▼
+                           PostgreSQL
+                      (Neon Serverless DB)
+                                │
+                ┌───────────────┼───────────────┐
+                │               │               │
+              Users          Events          Vendors
+                │               │               │
+             Sessions        Bookings        Reviews
+                                │
+                                ▼
+                      Deterministic Rule-Based
+                       Recommendation Engine
+```
 
 ---
 
 ## 🚀 Tech Stack
 
-- **Framework**: React 18 + TypeScript + Vite
-- **Styling**: Tailwind CSS (Sophisticated palette: Warm Ivory `#FAF8F5`, Deep Charcoal `#171717`, Coral Terracotta `#C96B55`, Muted Gold `#C9A45C`, AI Violet `#7667C8`)
-- **Typography**: Google Fonts (*Plus Jakarta Sans* for UI, *Playfair Display* for editorial headings)
-- **Icons**: Lucide React
-- **Routing**: React Router DOM (v6)
-- **State & Persistence**: React Context API (`AppContext`) + `localStorage` for saving vendors, comparisons, active event plans, and bookings.
+- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Lucide Icons, React Router DOM (v6)
+- **Backend**: Express, TypeScript, Serverless API functions (compatible with Vercel deployment)
+- **Database**: PostgreSQL (hosted on Neon Serverless PostgreSQL)
+- **ORM**: Prisma Client & Prisma Migrate
+- **Authentication**: Argon2 password hashing, secure HTTP-only signed cookie sessions, server-side session validation
+- **Validation**: Zod schema validation
+- **Recommendation Engine**: Multi-dimensional rule-based algorithmic scoring with future AI/ML extension interface (`RecommendationEngine`)
+- **Deployment**: Vercel ready (`vercel.json`, optimized builds)
 
 ---
 
 ## ✨ Features Implemented
 
-1. **Cinematic Hero & Planning Search Widget**:
-   - Live query generator for event type, Indian city (Pune, Mumbai, Bengaluru, Nashik, Hyderabad), budget caps, and vendor categories.
-2. **AI Recommendation & Compatibility Engine**:
-   - Multi-factor algorithmic scoring (70–98%) factoring budget fit, location proximity, verified customer ratings, aesthetic style alignment, and calendar availability.
-   - Transparent *"Why this vendor?"* modal breaking down the 5 weighted dimensions.
-3. **Vendor Comparison Matrix (`/compare`)**:
-   - Side-by-side comparison for up to 4 vendors.
-   - Highlights best value, top rated, and highest experience.
-   - Floating comparison tray persisting across routes with quick-clear and removal actions.
-   - AI Decision Support synthesis providing automated recommendation reasons.
-4. **Interactive Vendor Profiles (`/vendors/:id`)**:
-   - High-resolution masonry photo gallery.
-   - Tiered packages (*Essential*, *Signature / Premium*, *Luxury Heritage*) with deliverable feature checklists.
-   - Interactive availability calendar showing booked vs available dates.
-   - Verified review breakdowns with 5-star rating distributions.
-   - One-click booking request modal with simulated submission and instant notification.
-5. **Multi-Step Event Creation Wizard (`/events/new`)**:
-   - 6-step guided wizard: Event Type ➔ Logistics & Date ➔ Interactive Budget Slider with automatic category allocation breakdown (Venue 30%, Catering 28%, Photography 18%, Decor 14%, Other 10%) ➔ Vendor Pillars ➔ Style Preferences ➔ Summary review.
-6. **Customer Event Planning Dashboard (`/dashboard`)**:
-   - Real-time budget utilization meter (Allocated vs Remaining).
-   - Milestone progress tracker across vendor pillars.
-   - Smart bundle recommendations (e.g. Photography + Decor combo saving ₹18,000).
-   - Shortlisted vendors and upcoming booking cards.
-7. **Role-Based Portals**:
-   - **Customer Portal**: Planning, recommendations, saved vendors, bookings, profile.
-   - **Vendor Portal (`/vendor/dashboard`)**: Profile completeness, booking requests (Accept / Decline actions), package manager, portfolio manager, availability calendar.
-   - **Admin Portal (`/admin`)**: Platform KPI metrics (3,420 users, 148 vendors, ₹4.82 Cr volume), and vendor verification compliance table (Verify / Reject controls).
-8. **Interactive Notifications**:
-   - Live dropdown in navbar notifying users of booking status updates, AI match recommendations, and budget thresholds.
+### 1. Customer Portal
+- **Authentication**: Sign up with automatic validation (public signup allows `CUSTOMER` and `VENDOR` only; `ADMIN` accounts are seeded), sign in, session persistence, secure logout.
+- **Event Planning**: Create, edit, and delete events with date, city, guest count, total budget, style preferences, and required service pillars.
+- **Intelligent Recommendations**: Multi-factor scoring (Budget fit 25%, Location proximity 15%, Rating 15%, Availability 15%, Style fit 15%, Experience 10%, Event fit 5%) normalized from 0–100 with humanized explanations.
+- **Optimized Multi-Vendor Combination**: Automatically computes a curated dream team across all required categories with total package price, average rating, match percentage, and remaining budget.
+- **Vendor Marketplace**: Real database-backed search (case-insensitive across business name, category, location, and tags), filtering (category, city, price range, minimum rating, experience, verified, availability), sorting, and pagination.
+- **Side-by-Side Comparison Matrix**: Select 2–4 vendors to compare prices, ratings, verified credentials, experience, and custom AI compatibility.
+- **Persistent Saved Shortlist**: Save vendors directly into PostgreSQL with unique constraints.
+- **Bookings**: Book vendor packages with live date selection, guest counts, and special notes.
+- **Real-Time Budget Meter**: Calculates exact allocated budget and remaining funds from real confirmed/pending bookings.
+- **Reviews**: Submit verified 1–5 star reviews with comments after event completion; aggregates vendor ratings server-side.
+
+### 2. Vendor Portal (`/vendor/dashboard`)
+- View booking requests from real event hosts.
+- Accept (Confirm) or Decline (Reject) bookings with immediate status persistence in PostgreSQL.
+- Business profile management, service catalog, tiered packages, portfolio gallery, and availability management.
+
+### 3. Admin Portal (`/admin`)
+- Platform analytics: total users, total vendors, verified vs pending vendors, total booking volume.
+- Vendor verification workflow: Review vendor credentials and toggle verified status (updating vendor profile directly in database).
+- Category management and user directory.
 
 ---
 
-## 🧭 Routes Overview
+## 🔑 Demo Accounts
 
-### Public Routes
-| Route | Description |
-|---|---|
-| `/` | Landing page with Hero search widget, category showcases, AI match preview, comparison preview, steps & testimonials |
-| `/vendors` | Vendor discovery marketplace with live filters (category, city, price range, rating, experience, styles, verified only), sorting, and search |
-| `/vendors/:id` | Comprehensive vendor profile with gallery, packages, availability calendar, reviews, and booking modal |
-| `/compare` | Side-by-side comparison matrix with standout badges and AI decision support synthesis |
-| `/about` | Product mission, Indian event tech story, and core principles |
-| `/login` | Authentication page with 1-click demo role switcher |
-| `/register` | Registration form with Customer vs Vendor account selection |
+The database comes pre-seeded with realistic test accounts:
 
-### Customer Dashboard Routes
-| Route | Description |
-|---|---|
-| `/dashboard` | Main personal event planning command center |
-| `/events` | List of events with active target switcher |
-| `/events/new` | 6-step event wizard with budget allocation slider |
-| `/recommendations` | Personalized AI recommendation engine with match breakdowns & smart packages |
-| `/saved` | Saved shortlist with Grid / List view toggle |
-| `/bookings` | Booking requests and contracts with status tabs & simulated downloads |
-| `/profile` | Host personal details and aesthetic style preferences |
-| `/settings` | Alert preferences and platform settings |
+| Role | Email | Password |
+|---|---|---|
+| **Customer** | `demo@vendora.app` | `Demo@12345` |
+| **Customer (Alt)** | `anurag@vendora.app` | `Demo@12345` |
+| **Vendor** | `vendor@vendora.app` | `Vendor@12345` |
+| **Admin** | `admin@vendora.app` | `Admin@12345` |
 
-### Vendor & Admin Routes
-| Route | Description |
-|---|---|
-| `/vendor/dashboard` | Vendor business hub with booking requests, packages, portfolio, and calendar |
-| `/admin` | Admin dashboard with platform metrics and vendor verification pipeline |
+*(Note: 1-click quick-fill buttons are also available on the Login page for rapid demonstration)*
 
 ---
 
-## 👥 Demo Accounts (1-Click Switcher)
+## 💻 Local Setup & Development
 
-A dedicated demo switcher is integrated directly into the top banner of the application and on the login page:
+### 1. Clone & Install
 
-| Role | Email | Password | Primary Experience |
-|---|---|---|---|
-| **Customer** | `demo@vendora.app` | `demo123` | Event Planning Command Center & Recommendations |
-| **Vendor** | `vendor@vendora.app` | `demo123` | Lens & Light Studio Partner Hub & Booking Requests |
-| **Admin** | `admin@vendora.app` | `demo123` | Platform Metrics & Vendor Verification Pipeline |
-
----
-
-## 🗂️ Project Structure
-
-```text
-Major Project/
-├── index.html                     # HTML entry point with luxury fonts (Playfair Display & Plus Jakarta Sans)
-├── package.json                   # Dependencies (React, Lucide, Tailwind, React Router)
-├── tailwind.config.js             # Sophisticated Indian event-tech color system & radius tokens
-├── tsconfig.json                  # TypeScript compiler settings
-├── vite.config.ts                 # Vite bundler configuration
-└── src/
-    ├── types/
-    │   └── index.ts               # Core domain interfaces (Vendor, EventPlan, Booking, Package, etc.)
-    ├── data/
-    │   ├── vendors.ts             # 22 realistic Indian vendor datasets across 8 categories & 5 cities
-    │   ├── events.ts              # Default event plans & sample event templates
-    │   ├── bookings.ts            # Realistic bookings with Confirmed/Pending statuses
-    │   └── users.ts               # Demo accounts for Customer, Vendor, and Admin
-    ├── services/
-    │   ├── vendorService.ts       # Marketplace filtering, search, and sorting logic
-    │   ├── recommendationService.ts # Multi-criteria AI compatibility algorithm & explanation builder
-    │   ├── eventService.ts        # Event persistence & retrieval abstraction
-    │   ├── bookingService.ts      # Booking creation & status updates with localStorage
-    │   └── authService.ts         # Authentication & role switching abstraction
-    ├── context/
-    │   └── AppContext.tsx         # Central state for saved vendors, comparisons, bookings & notifications
-    ├── components/
-    │   ├── common/
-    │   │   ├── VerifiedBadge.tsx
-    │   │   ├── RatingDisplay.tsx
-    │   │   ├── PriceDisplay.tsx
-    │   │   ├── MatchScoreBadge.tsx
-    │   │   ├── AiMatchBreakdownModal.tsx
-    │   │   └── CompareTray.tsx
-    │   ├── vendor/
-    │   │   ├── VendorCard.tsx
-    │   │   └── FilterSidebar.tsx
-    │   └── layout/
-    │       ├── Navbar.tsx
-    │       ├── Footer.tsx
-    │       └── NotificationDropdown.tsx
-    ├── layouts/
-    │   ├── MainLayout.tsx         # Public layout with Navbar, Footer & floating CompareTray
-    │   └── DashboardLayout.tsx    # Responsive sidebar layout for Customer, Vendor, and Admin
-    └── pages/
-        ├── LandingPage.tsx
-        ├── VendorDiscoveryPage.tsx
-        ├── VendorDetailPage.tsx
-        ├── ComparePage.tsx
-        ├── RecommendationsPage.tsx
-        ├── NewEventPage.tsx
-        ├── CustomerDashboardPage.tsx
-        ├── SavedVendorsPage.tsx
-        ├── BookingsPage.tsx
-        ├── CustomerProfilePage.tsx
-        ├── EventsListPage.tsx
-        ├── SettingsPage.tsx
-        ├── AboutPage.tsx
-        ├── auth/
-        │   ├── LoginPage.tsx
-        │   └── RegisterPage.tsx
-        ├── vendor/
-        │   └── VendorDashboardPage.tsx
-        └── admin/
-            └── AdminDashboardPage.tsx
-```
-
----
-
-## 🔌 Future Backend Integration Ready
-
-All operations are modeled via service abstractions (`vendorService`, `recommendationService`, `eventService`, `bookingService`, `authService`).
-
-When migrating to a real backend in the future:
-1. Replace mock calls in `src/services/` with `fetch()` or `axios` API calls:
-   ```typescript
-   // Current frontend prototype:
-   getVendors: (filters) => { return filterLocalVendors(filters); }
-
-   // Future backend integration:
-   getVendors: async (filters) => {
-     const res = await fetch(`/api/vendors?${new URLSearchParams(filters)}`);
-     return res.json();
-   }
-   ```
-2. Replace `calculateVendorMatch()` with your machine learning or vector search recommendation microservice (`GET /api/recommendations?eventId=...`).
-3. Point `bookingService.createBooking()` to your backend reservation & payment gateway service.
-
----
-
-## 💻 How to Run Locally
-
-### Prerequisites
-- Node.js (v18 or higher recommended)
-- npm (v9 or higher)
-
-### Installation & Launch
 ```bash
-# 1. Install dependencies
+git clone <repository-url>
+cd "Major Project"
 npm install
-
-# 2. Start the Vite development server
-npm run dev
-
-# 3. Open in your browser
-http://localhost:5173
 ```
 
-### Production Build
+### 2. Configure Environment Variables
+
 ```bash
-npm run build
-npm run preview
+cp .env.example .env
 ```
+
+Edit `.env` and provide your PostgreSQL connection string:
+
+```env
+DATABASE_URL="postgresql://user:password@host/neondb?sslmode=require"
+SESSION_SECRET="your-secure-session-secret"
+NODE_ENV="development"
+PORT=3000
+FRONTEND_URL="http://localhost:5173"
+```
+
+### 3. Run Database Migrations & Seed
+
+```bash
+# Apply Prisma migrations to PostgreSQL
+npx prisma migrate dev
+
+# Seed database with categories, admin, customers, 22 vendors, packages, services, reviews, and events
+npx prisma db seed
+```
+
+### 4. Run Development Server
+
+```bash
+# Starts both Express API (port 3000) and Vite frontend (port 5173) with API proxying
+npm run dev
+```
+
+Visit `http://localhost:5173` in your browser.
+
+---
+
+## 🧪 Testing
+
+Run the automated integration test suite:
+
+```bash
+npm test
+```
+
+This verifies:
+- Database connectivity & health check
+- Authentication (signup, duplicate email prevention, admin role restriction, password verification, cookie issuance, `/api/auth/me`)
+- Events CRUD and user data isolation
+- Vendor search, filtering, and comparison
+- Rule-based recommendation engine & optimized multi-vendor combination calculation
+- Saved vendors PostgreSQL persistence
+- Booking creation and vendor status acceptance
+- Review submission and server-side rating aggregation
+- Admin metrics and vendor verification
+
+---
+
+## 🚢 Production Deployment (Vercel)
+
+The project is structured to deploy smoothly to **Vercel** with a serverless backend and external PostgreSQL database (e.g. Neon):
+
+1. **Connect Repository to Vercel**: Import the GitHub repository into your Vercel dashboard.
+2. **Configure Environment Variables** in Vercel Project Settings:
+   - `DATABASE_URL`: Your hosted PostgreSQL connection string (Neon, Supabase, etc.)
+   - `SESSION_SECRET`: A long random secret string for session cookies
+   - `NODE_ENV`: `production`
+3. **Build & Output Settings**:
+   - Framework Preset: `Vite`
+   - Build Command: `npm run build` (runs `prisma generate && tsc -b && vite build`)
+   - Output Directory: `dist`
+4. **Deploy**:
+   - Vercel automatically routes `/api/*` requests to the serverless function in `api/index.ts` using the rules in `vercel.json`, and serves static SPA assets from `dist/` with fallback routing to `index.html`.
+
+---
+
+## 📄 License
+
+MIT License. Designed and engineered for VENDORA.

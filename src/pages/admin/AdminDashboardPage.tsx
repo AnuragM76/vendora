@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { adminApi, vendorApi } from '../../services/api';
 import { 
   ShieldCheck, 
   Users, 
@@ -95,8 +96,30 @@ export const AdminDashboardPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Verified' | 'Pending' | 'Rejected'>('All');
 
-  const handleUpdateStatus = (id: string, newStatus: 'Verified' | 'Rejected') => {
+  useEffect(() => {
+    adminApi.getAdminVendors().then((vendors) => {
+      if (vendors && vendors.length > 0) {
+        setVendorList(
+          vendors.map((v) => ({
+            id: v.id,
+            name: v.businessName || v.name,
+            category: v.category?.name || 'Photography',
+            location: v.location,
+            rating: v.rating,
+            status: v.verified ? 'Verified' : 'Pending',
+            joinedDate: v.createdAt ? new Date(v.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Recently',
+            documentsVerified: Boolean(v.verified),
+          }))
+        );
+      }
+    }).catch(() => {});
+  }, []);
+
+  const handleUpdateStatus = async (id: string, newStatus: 'Verified' | 'Rejected') => {
     setVendorList(prev => prev.map(v => v.id === id ? { ...v, status: newStatus } : v));
+    try {
+      await vendorApi.verifyVendor(id, newStatus === 'Verified');
+    } catch {}
   };
 
   const filtered = vendorList.filter(v => {

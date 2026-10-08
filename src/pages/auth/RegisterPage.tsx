@@ -1,24 +1,54 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, UserCheck, Store } from 'lucide-react';
+import { ArrowRight, UserCheck, Store, Loader2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useApp();
+  const { register } = useApp();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [accountType, setAccountType] = useState<'customer' | 'vendor'>('customer');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(email || (accountType === 'vendor' ? 'vendor@vendora.app' : 'demo@vendora.app'));
-    if (accountType === 'vendor') {
-      navigate('/vendor/dashboard');
-    } else {
-      navigate('/dashboard');
+    if (!name.trim() || !email.trim() || !password) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.');
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+
+    try {
+      const res = await register({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+        role: accountType,
+      });
+
+      if (res.success) {
+        if (accountType === 'vendor') {
+          navigate('/vendor/dashboard');
+        } else {
+          navigate('/dashboard');
+        }
+      } else {
+        setError(res.message || 'Could not complete registration. Please try again.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to create account.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,6 +71,12 @@ export const RegisterPage: React.FC = () => {
             Join India's premier intelligent event planning and vendor network.
           </p>
         </div>
+
+        {error && (
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Account Type Selector */}
@@ -104,23 +140,34 @@ export const RegisterPage: React.FC = () => {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-charcoal-700 block">Password</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-charcoal-700 block">Password (min 8 characters)</label>
             <input
               type="password"
               required
+              minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Create a password"
+              placeholder="Create a secure password"
               className="w-full bg-ivory-50 border border-borderBase rounded-xl px-4 py-2.5 text-xs font-semibold text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-coral-500"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 bg-charcoal-900 hover:bg-coral-500 text-white rounded-xl text-xs font-bold shadow-subtle transition-all flex items-center justify-center gap-2"
+            disabled={loading}
+            className="w-full py-3 bg-charcoal-900 hover:bg-coral-500 text-white rounded-xl text-xs font-bold shadow-subtle transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            <span>Create Account</span>
-            <ArrowRight className="w-4 h-4" />
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Creating Account...</span>
+              </>
+            ) : (
+              <>
+                <span>Create Account</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
         </form>
 

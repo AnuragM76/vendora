@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useApp } from '../../context/AppContext';
+import { bookingApi } from '../../services/api';
 import { 
   Store, 
   Eye, 
@@ -76,8 +78,30 @@ export const VendorDashboardPage: React.FC = () => {
     }
   ]);
 
-  const handleAction = (id: string, newStatus: 'Accepted' | 'Declined') => {
+  useEffect(() => {
+    bookingApi.getBookings().then((b) => {
+      if (b && b.length > 0) {
+        setRequests(
+          b.map((item) => ({
+            id: item.id,
+            clientName: item.eventName || 'Host Client',
+            event: `${item.eventName} (${item.vendorLocation})`,
+            date: item.eventDate,
+            guestCount: 250,
+            packageRequested: item.packageName,
+            amount: item.amount,
+            status: item.status === 'Confirmed' ? 'Accepted' : item.status === 'Cancelled' ? 'Declined' : 'Pending',
+          }))
+        );
+      }
+    }).catch(() => {});
+  }, []);
+
+  const handleAction = async (id: string, newStatus: 'Accepted' | 'Declined') => {
     setRequests(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r));
+    try {
+      await bookingApi.updateBookingStatus(id, newStatus === 'Accepted' ? 'CONFIRMED' : 'REJECTED');
+    } catch {}
   };
 
   return (

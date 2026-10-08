@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Calendar, 
@@ -36,11 +36,18 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ role }) => {
   const location = useLocation();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Active role can be forced by prop or derived from current user/path
   const currentRole = role || (
     location.pathname.startsWith('/vendor') ? 'vendor' :
     location.pathname.startsWith('/admin') ? 'admin' : 'customer'
   );
+
+  // Role authorization enforcement (section 41)
+  if (currentRole === 'admin' && user.role !== 'admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+  if (currentRole === 'vendor' && user.role !== 'vendor' && user.role !== 'admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const isActive = (path: string) => location.pathname === path;
 

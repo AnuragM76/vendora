@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Sparkles, 
@@ -12,27 +12,55 @@ import {
   TrendingUp, 
   Lightbulb, 
   ShieldCheck, 
-  SlidersHorizontal,
-  ChevronDown,
-  Package
+  SlidersHorizontal, 
+  ChevronDown, 
+  Package,
+  Check
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { mockVendors } from '../data/vendors';
 import { recommendVendors } from '../services/recommendationService';
+import { recommendationApi } from '../services/api';
 import { VendorCard } from '../components/vendor/VendorCard';
-import { CategoryType } from '../types';
+import { CategoryType, Vendor, MatchBreakdown } from '../types';
 import { formatINR } from '../components/common/PriceDisplay';
 
 export const RecommendationsPage: React.FC = () => {
   const { activeEvent } = useApp();
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | 'All'>('All');
+  const [apiRecommendations, setApiRecommendations] = useState<Array<Vendor & { match: MatchBreakdown }>>([]);
+  const [apiCombination, setApiCombination] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
-  // Compute AI recommendations based on activeEvent
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    recommendationApi
+      .getRecommendations(activeEvent.id)
+      .then((res) => {
+        if (mounted && res.recommendations) {
+          setApiRecommendations(res.recommendations);
+          setApiCombination(res.combination);
+        }
+      })
+      .catch(() => {
+        // graceful fallback to client calculation
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [activeEvent.id]);
+
+  // Compute recommendations based on activeEvent (using API if ready, or local rule-based fallback)
   const rankedVendors = useMemo(() => {
-    const allRanked = recommendVendors(mockVendors, activeEvent);
-    if (selectedCategory === 'All') return allRanked;
-    return allRanked.filter(v => v.category === selectedCategory);
-  }, [activeEvent, selectedCategory]);
+    const source = apiRecommendations.length > 0 ? apiRecommendations : recommendVendors(mockVendors, activeEvent);
+    if (selectedCategory === 'All') return source;
+    return source.filter(v => v.category.toLowerCase() === selectedCategory.toLowerCase());
+  }, [activeEvent, selectedCategory, apiRecommendations]);
 
   const categories: (CategoryType | 'All')[] = [
     'All',
@@ -156,6 +184,56 @@ export const RecommendationsPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Dynamic Backend-Optimized Combination (Section 33) */}
+          {apiCombination && apiCombination.items?.length > 0 && (
+            <div className="md:col-span-2 bg-gradient-to-r from-coral-50/70 via-surface to-ivory-100 rounded-3xl p-6 sm:p-8 border-2 border-coral-400 shadow-elevated space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-coral-100 text-coral-800 text-[11px] font-bold uppercase tracking-wider mb-2">
+                    <Sparkles className="w-3.5 h-3.5 text-coral-600" />
+                    <span>AI-Optimized Multi-Vendor Combination</span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold font-serif text-charcoal-900">
+                    Curated Vendor Team for {activeEvent.name}
+                  </h3>
+                  <p className="text-xs text-charcoal-600 mt-1">
+                    Algorithmically curated to maximize quality ({apiCombination.averageRating}★ average rating) with {apiCombination.overallMatch}% match score.
+                  </p>
+                </div>
+                <div className="text-left sm:text-right bg-surface px-5 py-3 rounded-2xl border border-borderBase shadow-sm">
+                  <span className="text-[10px] text-charcoal-500 uppercase font-bold tracking-wider block">Estimated Team Total</span>
+                  <div className="text-2xl font-extrabold text-charcoal-900">₹{formatINR(apiCombination.totalPrice)}</div>
+                  <span className="text-[11px] text-emeraldGreen font-bold">
+                    ₹{formatINR(apiCombination.budgetRemaining)} remaining under budget
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+                {apiCombination.items.map((item: any, idx: number) => (
+                  <div key={idx} className="bg-surface p-4 rounded-2xl border border-borderBase shadow-subtle flex flex-col justify-between space-y-3">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase text-coral-600 bg-coral-50 px-2 py-0.5 rounded-full">
+                        {item.category}
+                      </span>
+                      <h4 className="font-bold text-sm text-charcoal-900 mt-1.5 truncate">{item.vendorName}</h4>
+                      <div className="flex items-center gap-2 text-xs text-charcoal-500 mt-1">
+                        <span>★ {item.rating}</span>
+                        <span>•</span>
+                        <span className="text-emeraldGreen font-semibold">{item.matchScore}% Match</span>
+                      </div>
+                    </div>
+                    <div className="pt-2 border-t border-borderBase flex items-center justify-between">
+                      <span className="text-xs font-bold text-charcoal-900">₹{formatINR(item.price)}</span>
+                      <Link to={`/vendors/${item.vendorId}`} className="text-[11px] font-bold text-coral-600 hover:underline">
+                        View Profile →
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           {/* Package 1 */}
           <div className="bg-surface rounded-2xl p-6 border border-borderBase shadow-card space-y-4 flex flex-col justify-between">
             <div className="space-y-3">
