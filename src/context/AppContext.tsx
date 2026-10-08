@@ -16,11 +16,10 @@ export interface NotificationItem {
 }
 
 interface AppContextType {
-  user: User;
-  switchRole: (role: 'customer' | 'vendor' | 'admin') => void;
+  user: User | null;
   login: (email: string, password?: string) => Promise<boolean>;
   register: (data: { name: string; email: string; password: string; role: 'customer' | 'vendor' }) => Promise<{ success: boolean; message?: string }>;
-  logout: () => void;
+  logout: () => Promise<void>;
   
   // Saved Vendors
   savedVendorIds: string[];
@@ -60,7 +59,7 @@ const SAVED_VENDORS_KEY = 'vendora_saved_vendors';
 const COMPARE_VENDORS_KEY = 'vendora_compare_vendors';
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User>(() => authService.getCurrentUser());
+  const [user, setUser] = useState<User | null>(() => authService.getCurrentUser());
   const [activeEvent, setActiveEvent] = useState<EventPlan>(() => eventService.getCurrentEvent());
   const [bookings, setBookings] = useState<Booking[]>(() => bookingService.getBookings());
 
@@ -226,14 +225,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  const switchRole = (role: 'customer' | 'vendor' | 'admin') => {
-    const newUser = authService.switchRole(role);
-    setUser(newUser);
-    setTimeout(() => {
-      refreshAllData();
-    }, 500);
-  };
-
   const login = async (email: string, password?: string): Promise<boolean> => {
     const res = await authService.login(email, password);
     if (res.success && res.user) {
@@ -261,7 +252,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const logout = async () => {
     await authService.logout();
-    setUser(authService.getCurrentUser());
+    setUser(null);
+    setSavedVendorIds([]);
+    try {
+      localStorage.removeItem(SAVED_VENDORS_KEY);
+    } catch {}
   };
 
   const addBooking = (bookingData: Omit<Booking, 'id' | 'createdAt'>): Booking => {
@@ -303,7 +298,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     <AppContext.Provider
       value={{
         user,
-        switchRole,
         login,
         register,
         logout,

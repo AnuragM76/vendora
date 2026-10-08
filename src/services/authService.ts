@@ -1,11 +1,10 @@
-import { demoAccounts } from '../data/users';
 import { User } from '../types';
 import { authApi } from './api';
 
 const AUTH_USER_KEY = 'vendora_auth_user';
 
 export const authService = {
-  getCurrentUser: (): User => {
+  getCurrentUser: (): User | null => {
     try {
       const stored = localStorage.getItem(AUTH_USER_KEY);
       if (stored) {
@@ -14,8 +13,7 @@ export const authService = {
     } catch {
       // fallback
     }
-    // Default to customer demo account
-    return demoAccounts.customer;
+    return null;
   },
 
   checkSession: async (): Promise<User | null> => {
@@ -28,21 +26,28 @@ export const authService = {
         return user;
       }
     } catch {}
+    // If backend session expired or invalid, remove stale local cache
+    try {
+      localStorage.removeItem(AUTH_USER_KEY);
+    } catch {}
     return null;
   },
 
   login: async (email: string, password?: string): Promise<{ success: boolean; user?: User; message?: string }> => {
     const cleanEmail = email.trim().toLowerCase();
-    
-    // Attempt backend API login first with credentials
-    try {
-      const defaultPasswords: Record<string, string> = {
-        'demo@vendora.app': 'Demo@12345',
-        'vendor@vendora.app': 'Vendor@12345',
-        'admin@vendora.app': 'Admin@12345',
+    if (!cleanEmail) {
+      return { success: false, message: 'Email address is required.' };
+    }
+    if (!password) {
+      return { 
+        success: false, 
+        message: 'Password is required. User accounts can only be accessed with valid email and password.' 
       };
-      const pwd = password || defaultPasswords[cleanEmail] || 'Demo@12345';
-      const res = await authApi.login(cleanEmail, pwd);
+    }
+    
+    // Authenticate with backend database using credentials
+    try {
+      const res = await authApi.login(cleanEmail, password);
       if (res.user) {
         try {
           localStorage.setItem(AUTH_USER_KEY, JSON.stringify(res.user));
@@ -50,31 +55,10 @@ export const authService = {
         return { success: true, user: res.user };
       }
     } catch (err: any) {
-      // If error was from actual credential failure, return error message
-      if (err.message && (err.message.includes('Invalid') || err.message.includes('password'))) {
-        return { success: false, message: err.message };
-      }
-    }
-
-    // Fallback demo account logic if server is temporarily unreachable
-    let user: User | undefined;
-    if (cleanEmail === 'vendor@vendora.app') {
-      user = demoAccounts.vendor;
-    } else if (cleanEmail === 'admin@vendora.app') {
-      user = demoAccounts.admin;
-    } else if (cleanEmail === 'demo@vendora.app' || cleanEmail.includes('@')) {
-      user = {
-        ...demoAccounts.customer,
-        email: cleanEmail,
-        name: cleanEmail.split('@')[0].replace('.', ' ').replace(/^./, str => str.toUpperCase()) || 'Anurag Sharma',
+      return { 
+        success: false, 
+        message: err.message || 'Invalid email or password. Please verify your credentials and try again.' 
       };
-    }
-
-    if (user) {
-      try {
-        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
-      } catch {}
-      return { success: true, user };
     }
 
     return { success: false, message: 'Invalid credentials. Please verify your email and password.' };
@@ -105,28 +89,6 @@ export const authService = {
     }
 
     return { success: false, message: 'Failed to create account.' };
-  },
-
-  switchRole: (role: 'customer' | 'vendor' | 'admin'): User => {
-    const user = demoAccounts[role];
-    try {
-      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
-    } catch {}
-    
-    // Also trigger backend demo session switch asynchronously
-    const demoCreds: Record<string, string> = {
-      customer: 'demo@vendora.app',
-      vendor: 'vendor@vendora.app',
-      admin: 'admin@vendora.app',
-    };
-    const passwords: Record<string, string> = {
-      customer: 'Demo@12345',
-      vendor: 'Vendor@12345',
-      admin: 'Admin@12345',
-    };
-    authApi.login(demoCreds[role], passwords[role]).catch(() => {});
-
-    return user;
   },
 
   logout: async (): Promise<void> => {

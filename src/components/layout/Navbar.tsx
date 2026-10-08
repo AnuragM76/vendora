@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Sparkles, 
   Heart, 
@@ -12,14 +12,17 @@ import {
   LayoutDashboard,
   Shield,
   Store,
-  ChevronDown
+  ChevronDown,
+  LogOut,
+  TicketCheck
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { NotificationDropdown } from './NotificationDropdown';
 
 export const Navbar: React.FC = () => {
-  const { user, switchRole, savedVendorIds, comparedVendorIds, activeEvent } = useApp();
+  const { user, logout, savedVendorIds, comparedVendorIds, activeEvent } = useApp();
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
 
@@ -31,43 +34,41 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-borderBase transition-all">
-      {/* Top micro banner for Demo Mode switcher */}
-      <div className="bg-charcoal-900 text-charcoal-300 text-[11px] py-1 px-4 sm:px-8 flex items-center justify-between border-b border-charcoal-800">
+      {/* Top micro banner */}
+      <div className="bg-charcoal-900 text-charcoal-300 text-[11px] py-1.5 px-4 sm:px-8 flex items-center justify-between border-b border-charcoal-800">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="font-medium text-charcoal-200">Demo Prototype:</span>
-          <span className="hidden sm:inline text-charcoal-400">Current Event:</span>
-          <span className="font-semibold text-white truncate max-w-xs">{activeEvent.name} ({activeEvent.location})</span>
+          <span className="font-semibold text-white">VENDORA</span>
+          <span className="hidden sm:inline text-charcoal-400">• Intelligent Event Planning</span>
+          {activeEvent && (
+            <>
+              <span className="hidden md:inline text-charcoal-600">|</span>
+              <span className="hidden md:inline text-charcoal-400">Current Event:</span>
+              <span className="font-semibold text-white truncate max-w-xs hidden md:inline">{activeEvent.name} ({activeEvent.location})</span>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="hidden md:inline text-charcoal-400">Switch View:</span>
-          <div className="flex items-center bg-charcoal-800 rounded-lg p-0.5 border border-charcoal-700">
-            <button
-              onClick={() => switchRole('customer')}
-              className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-colors ${
-                user.role === 'customer' ? 'bg-coral-500 text-white' : 'text-charcoal-400 hover:text-white'
-              }`}
-            >
-              Customer
-            </button>
-            <button
-              onClick={() => switchRole('vendor')}
-              className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-colors ${
-                user.role === 'vendor' ? 'bg-coral-500 text-white' : 'text-charcoal-400 hover:text-white'
-              }`}
-            >
-              Vendor
-            </button>
-            <button
-              onClick={() => switchRole('admin')}
-              className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-colors ${
-                user.role === 'admin' ? 'bg-coral-500 text-white' : 'text-charcoal-400 hover:text-white'
-              }`}
-            >
-              Admin
-            </button>
-          </div>
+          {user ? (
+            <div className="flex items-center gap-2 text-xs">
+              <span className="hidden md:inline text-charcoal-400">Signed in as:</span>
+              <span className="text-white font-medium truncate max-w-[140px]">{user.name}</span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-charcoal-800 text-coral-400 border border-charcoal-700">
+                {user.role}
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 text-xs">
+              <Link to="/login" className="text-charcoal-300 hover:text-white transition-colors">
+                Sign In
+              </Link>
+              <span className="text-charcoal-600">•</span>
+              <Link to="/register" className="text-coral-400 hover:text-coral-300 font-semibold transition-colors">
+                Create Account
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
@@ -180,83 +181,139 @@ export const Navbar: React.FC = () => {
           {/* Notifications Dropdown */}
           <NotificationDropdown />
 
-          {/* User Account / Role Badge */}
-          <div className="relative">
-            <button
-              onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-              className="flex items-center gap-2 p-1.5 pr-2.5 rounded-full hover:bg-ivory-100 border border-borderBase transition-all"
-            >
-              <img
-                src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
-                alt={user.name}
-                className="w-7 h-7 rounded-full object-cover border border-borderBase"
-              />
-              <div className="text-left hidden sm:block">
-                <span className="text-xs font-bold text-charcoal-900 block leading-tight truncate max-w-[100px]">
-                  {user.name}
-                </span>
-                <span className="text-[10px] uppercase font-semibold text-coral-600 tracking-wider">
-                  {user.role}
-                </span>
-              </div>
-              <ChevronDown className="w-3.5 h-3.5 text-charcoal-400" />
-            </button>
-
-            {roleDropdownOpen && (
-              <div 
-                className="absolute right-0 mt-2 w-56 bg-surface rounded-2xl border border-borderBase shadow-elevated py-2 z-50 animate-scaleUp"
-                onClick={() => setRoleDropdownOpen(false)}
+          {/* User Account / Role Badge OR Login/Register CTA */}
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
+                className="flex items-center gap-2 p-1.5 pr-2.5 rounded-full hover:bg-ivory-100 border border-borderBase transition-all"
               >
-                <div className="px-4 py-2 border-b border-borderBase">
-                  <p className="text-xs font-bold text-charcoal-900">{user.name}</p>
-                  <p className="text-[11px] text-charcoal-500 truncate">{user.email}</p>
+                <img
+                  src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
+                  alt={user.name}
+                  className="w-7 h-7 rounded-full object-cover border border-borderBase"
+                />
+                <div className="text-left hidden sm:block">
+                  <span className="text-xs font-bold text-charcoal-900 block leading-tight truncate max-w-[100px]">
+                    {user.name}
+                  </span>
+                  <span className="text-[10px] uppercase font-semibold text-coral-600 tracking-wider">
+                    {user.role}
+                  </span>
                 </div>
+                <ChevronDown className="w-3.5 h-3.5 text-charcoal-400" />
+              </button>
 
-                <div className="py-1">
-                  <Link
-                    to="/dashboard"
-                    className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-ivory-100"
-                  >
-                    <LayoutDashboard className="w-4 h-4 text-charcoal-400" />
-                    Customer Dashboard
-                  </Link>
+              {roleDropdownOpen && (
+                <div 
+                  className="absolute right-0 mt-2 w-56 bg-surface rounded-2xl border border-borderBase shadow-elevated py-2 z-50 animate-scaleUp"
+                  onClick={() => setRoleDropdownOpen(false)}
+                >
+                  <div className="px-4 py-2 border-b border-borderBase">
+                    <p className="text-xs font-bold text-charcoal-900">{user.name}</p>
+                    <p className="text-[11px] text-charcoal-500 truncate">{user.email}</p>
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-coral-50 text-coral-700">
+                      {user.role} Account
+                    </span>
+                  </div>
 
-                  <Link
-                    to="/vendor/dashboard"
-                    className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-ivory-100"
-                  >
-                    <Store className="w-4 h-4 text-charcoal-400" />
-                    Vendor Portal
-                  </Link>
+                  <div className="py-1">
+                    {user.role === 'customer' && (
+                      <>
+                        <Link
+                          to="/dashboard"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-ivory-100"
+                        >
+                          <LayoutDashboard className="w-4 h-4 text-charcoal-400" />
+                          Customer Dashboard
+                        </Link>
+                        <Link
+                          to="/events"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-ivory-100"
+                        >
+                          <Calendar className="w-4 h-4 text-charcoal-400" />
+                          My Events
+                        </Link>
+                        <Link
+                          to="/bookings"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-ivory-100"
+                        >
+                          <TicketCheck className="w-4 h-4 text-charcoal-400" />
+                          My Bookings
+                        </Link>
+                      </>
+                    )}
 
-                  <Link
-                    to="/admin"
-                    className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-ivory-100"
-                  >
-                    <Shield className="w-4 h-4 text-charcoal-400" />
-                    Admin Portal
-                  </Link>
+                    {user.role === 'vendor' && (
+                      <Link
+                        to="/vendor/dashboard"
+                        className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-ivory-100"
+                      >
+                        <Store className="w-4 h-4 text-charcoal-400" />
+                        Vendor Portal
+                      </Link>
+                    )}
 
-                  <Link
-                    to="/profile"
-                    className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-ivory-100"
-                  >
-                    <UserCircle className="w-4 h-4 text-charcoal-400" />
-                    Profile & Preferences
-                  </Link>
+                    {user.role === 'admin' && (
+                      <>
+                        <Link
+                          to="/admin"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-ivory-100"
+                        >
+                          <Shield className="w-4 h-4 text-charcoal-400" />
+                          Admin Portal
+                        </Link>
+                        <Link
+                          to="/dashboard"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-ivory-100"
+                        >
+                          <LayoutDashboard className="w-4 h-4 text-charcoal-400" />
+                          Customer View
+                        </Link>
+                      </>
+                    )}
+
+                    <Link
+                      to="/profile"
+                      className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-ivory-100"
+                    >
+                      <UserCircle className="w-4 h-4 text-charcoal-400" />
+                      Profile & Preferences
+                    </Link>
+                  </div>
+
+                  <div className="border-t border-borderBase pt-1 mt-1">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await logout();
+                        navigate('/login');
+                      }}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors text-left"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
+                  </div>
                 </div>
-
-                <div className="border-t border-borderBase pt-1 mt-1">
-                  <Link
-                    to="/login"
-                    className="block px-4 py-2 text-xs font-semibold text-coral-600 hover:bg-coral-50"
-                  >
-                    Switch Account / Login
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link
+                to="/login"
+                className="px-3 py-2 rounded-xl text-xs font-bold text-charcoal-800 hover:bg-ivory-100 transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/register"
+                className="hidden sm:inline-flex px-3.5 py-2 rounded-xl bg-coral-500 hover:bg-coral-600 text-white text-xs font-bold shadow-sm transition-colors"
+              >
+                Create Account
+              </Link>
+            </div>
+          )}
 
           {/* Primary Action Button */}
           <Link
@@ -318,38 +375,91 @@ export const Navbar: React.FC = () => {
               )}
             </Link>
 
-            <Link
-              to="/dashboard"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-between p-3 rounded-xl text-sm font-semibold text-charcoal-800 hover:bg-ivory-100"
-            >
-              <div className="flex items-center gap-3">
-                <LayoutDashboard className="w-4 h-4 text-gold-600" />
-                <span>Customer Dashboard</span>
-              </div>
-            </Link>
+            {user ? (
+              <>
+                {user.role === 'customer' && (
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between p-3 rounded-xl text-sm font-semibold text-charcoal-800 hover:bg-ivory-100"
+                  >
+                    <div className="flex items-center gap-3">
+                      <LayoutDashboard className="w-4 h-4 text-gold-600" />
+                      <span>Customer Dashboard</span>
+                    </div>
+                  </Link>
+                )}
 
-            <Link
-              to="/vendor/dashboard"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-between p-3 rounded-xl text-sm font-semibold text-charcoal-800 hover:bg-ivory-100"
-            >
-              <div className="flex items-center gap-3">
-                <Store className="w-4 h-4 text-charcoal-500" />
-                <span>Vendor Dashboard</span>
-              </div>
-            </Link>
+                {user.role === 'vendor' && (
+                  <Link
+                    to="/vendor/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between p-3 rounded-xl text-sm font-semibold text-charcoal-800 hover:bg-ivory-100"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Store className="w-4 h-4 text-charcoal-500" />
+                      <span>Vendor Portal</span>
+                    </div>
+                  </Link>
+                )}
 
-            <Link
-              to="/admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-between p-3 rounded-xl text-sm font-semibold text-charcoal-800 hover:bg-ivory-100"
-            >
-              <div className="flex items-center gap-3">
-                <Shield className="w-4 h-4 text-charcoal-500" />
-                <span>Admin Dashboard</span>
+                {user.role === 'admin' && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between p-3 rounded-xl text-sm font-semibold text-charcoal-800 hover:bg-ivory-100"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Shield className="w-4 h-4 text-charcoal-500" />
+                      <span>Admin Portal</span>
+                    </div>
+                  </Link>
+                )}
+
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between p-3 rounded-xl text-sm font-semibold text-charcoal-800 hover:bg-ivory-100"
+                >
+                  <div className="flex items-center gap-3">
+                    <UserCircle className="w-4 h-4 text-charcoal-500" />
+                    <span>Profile & Settings</span>
+                  </div>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setMobileMenuOpen(false);
+                    await logout();
+                    navigate('/login');
+                  }}
+                  className="w-full flex items-center justify-between p-3 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50 text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <LogOut className="w-4 h-4 text-rose-600" />
+                    <span>Sign Out</span>
+                  </div>
+                </button>
+              </>
+            ) : (
+              <div className="pt-2 border-t border-borderBase space-y-2">
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block w-full text-center py-2.5 rounded-xl border border-borderBase text-sm font-bold text-charcoal-800 hover:bg-ivory-100"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block w-full text-center py-2.5 rounded-xl bg-coral-500 text-white text-sm font-bold shadow-sm hover:bg-coral-600"
+                >
+                  Create Account
+                </Link>
               </div>
-            </Link>
+            )}
 
             <Link
               to="/events/new"

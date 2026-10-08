@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
+import { Outlet, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Calendar, 
@@ -32,9 +32,14 @@ interface DashboardLayoutProps {
 }
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ role }) => {
-  const { user, switchRole, logout, savedVendorIds, comparedVendorIds, activeEvent } = useApp();
+  const { user, logout, savedVendorIds, comparedVendorIds, activeEvent } = useApp();
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   const currentRole = role || (
     location.pathname.startsWith('/vendor') ? 'vendor' :
@@ -217,42 +222,29 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ role }) => {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-1 bg-charcoal-100 p-1 rounded-lg text-center">
-              <button
-                onClick={() => switchRole('customer')}
-                className={`py-1 text-[10px] font-bold rounded ${
-                  currentRole === 'customer' ? 'bg-white text-charcoal-900 shadow-sm' : 'text-charcoal-500 hover:text-charcoal-900'
-                }`}
-              >
-                Customer
-              </button>
-              <button
-                onClick={() => switchRole('vendor')}
-                className={`py-1 text-[10px] font-bold rounded ${
-                  currentRole === 'vendor' ? 'bg-white text-charcoal-900 shadow-sm' : 'text-charcoal-500 hover:text-charcoal-900'
-                }`}
-              >
-                Vendor
-              </button>
-              <button
-                onClick={() => switchRole('admin')}
-                className={`py-1 text-[10px] font-bold rounded ${
-                  currentRole === 'admin' ? 'bg-white text-charcoal-900 shadow-sm' : 'text-charcoal-500 hover:text-charcoal-900'
-                }`}
-              >
-                Admin
-              </button>
+            <div className="bg-charcoal-100/70 p-2.5 rounded-xl flex items-center justify-between text-xs">
+              <span className="text-[11px] font-semibold text-charcoal-500">Account Role:</span>
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-white text-coral-600 shadow-sm border border-borderBase">
+                {user.role}
+              </span>
             </div>
 
             <div className="flex items-center justify-between text-xs pt-1 px-1">
-              <Link to="/settings" className="text-charcoal-500 hover:text-charcoal-900 flex items-center gap-1 font-medium">
+              <Link to="/profile" className="text-charcoal-500 hover:text-charcoal-900 flex items-center gap-1 font-medium">
                 <Settings className="w-3.5 h-3.5" />
-                Settings
+                Profile
               </Link>
-              <Link to="/" className="text-coral-600 hover:text-coral-700 flex items-center gap-1 font-medium">
+              <button
+                type="button"
+                onClick={async () => {
+                  await logout();
+                  navigate('/login');
+                }}
+                className="text-coral-600 hover:text-coral-700 flex items-center gap-1 font-medium cursor-pointer"
+              >
                 <LogOut className="w-3.5 h-3.5" />
-                Exit
-              </Link>
+                Sign Out
+              </button>
             </div>
           </div>
         </aside>

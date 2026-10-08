@@ -1,30 +1,30 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useApp();
 
-  const [email, setEmail] = useState('demo@vendora.app');
-  const [password, setPassword] = useState('Demo@12345');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) {
-      setError('Please enter your email address.');
+    if (!email.trim() || !password) {
+      setError('Please provide both your email address (Login ID) and password.');
       return;
     }
     setError('');
     setLoading(true);
 
     try {
-      const success = await login(email, password);
+      const success = await login(email.trim(), password);
       if (success) {
-        const clean = email.toLowerCase();
+        const clean = email.trim().toLowerCase();
         if (clean.includes('vendor')) {
           navigate('/vendor/dashboard');
         } else if (clean.includes('admin')) {
@@ -33,19 +33,13 @@ export const LoginPage: React.FC = () => {
           navigate('/dashboard');
         }
       } else {
-        setError('Invalid email or password. Please check your credentials and try again.');
+        setError('Invalid login credentials. Please verify your email and password.');
       }
     } catch (err: any) {
-      setError(err.message || 'Unable to sign in. Please try again.');
+      setError(err.message || 'Unable to sign in. Please verify your credentials.');
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleQuickFill = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    setError('');
   };
 
   return (
@@ -62,10 +56,10 @@ export const LoginPage: React.FC = () => {
             </span>
           </Link>
           <h2 className="text-2xl font-serif font-bold text-charcoal-900">
-            Welcome back
+            Sign In to Your Account
           </h2>
           <p className="text-xs text-charcoal-500">
-            Sign in to manage your event bookings and smart vendor shortlists.
+            Access your event planning command center, vendor listings, or administrative portal.
           </p>
         </div>
 
@@ -78,14 +72,14 @@ export const LoginPage: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-xs font-bold uppercase tracking-wider text-charcoal-700 block">
-              Email Address
+              Email Address (Login ID)
             </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@domain.com"
+              placeholder="e.g. demo@vendora.app"
               className="w-full bg-ivory-50 border border-borderBase rounded-xl px-4 py-2.5 text-xs font-semibold text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-coral-500"
             />
           </div>
@@ -101,7 +95,7 @@ export const LoginPage: React.FC = () => {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="Enter your account password"
               className="w-full bg-ivory-50 border border-borderBase rounded-xl px-4 py-2.5 text-xs font-semibold text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-coral-500"
             />
           </div>
@@ -114,7 +108,7 @@ export const LoginPage: React.FC = () => {
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Signing In...</span>
+                <span>Verifying Credentials...</span>
               </>
             ) : (
               <>
@@ -125,36 +119,33 @@ export const LoginPage: React.FC = () => {
           </button>
         </form>
 
-        {/* Demo Mode Quick Accounts */}
-        <div className="pt-4 border-t border-borderBase space-y-2">
-          <span className="text-[11px] uppercase font-bold tracking-wider text-charcoal-400 block text-center">
-            Demo Credentials (1-Click Fill)
-          </span>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={() => handleQuickFill('demo@vendora.app', 'Demo@12345')}
-              className="p-2 rounded-xl border border-borderBase hover:border-coral-500 bg-ivory-50 text-center transition-colors"
-            >
-              <span className="text-xs font-bold text-charcoal-900 block">Customer</span>
-              <span className="text-[10px] text-charcoal-400">demo@</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickFill('vendor@vendora.app', 'Vendor@12345')}
-              className="p-2 rounded-xl border border-borderBase hover:border-coral-500 bg-ivory-50 text-center transition-colors"
-            >
-              <span className="text-xs font-bold text-charcoal-900 block">Vendor</span>
-              <span className="text-[10px] text-charcoal-400">vendor@</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickFill('admin@vendora.app', 'Admin@12345')}
-              className="p-2 rounded-xl border border-borderBase hover:border-coral-500 bg-ivory-50 text-center transition-colors"
-            >
-              <span className="text-xs font-bold text-charcoal-900 block">Admin</span>
-              <span className="text-[10px] text-charcoal-400">admin@</span>
-            </button>
+        {/* Security & System Accounts Info */}
+        <div className="pt-4 border-t border-borderBase space-y-3">
+          <div className="bg-ivory-50 border border-borderBase rounded-2xl p-3.5 space-y-2">
+            <div className="flex items-center gap-1.5 text-charcoal-800 text-xs font-bold">
+              <ShieldCheck className="w-4 h-4 text-emeraldGreen" />
+              <span>Authentication Credentials</span>
+            </div>
+            <p className="text-[11px] text-charcoal-500 leading-relaxed">
+              To change or switch accounts, enter the respective registered email and password:
+            </p>
+            <div className="text-[11px] font-mono text-charcoal-700 space-y-1 bg-white p-2.5 rounded-xl border border-borderBase/60">
+              <div className="flex justify-between">
+                <span>Customer:</span>
+                <span className="font-semibold text-charcoal-900">demo@vendora.app</span>
+                <span className="text-charcoal-400">Demo@12345</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Vendor:</span>
+                <span className="font-semibold text-charcoal-900">vendor@vendora.app</span>
+                <span className="text-charcoal-400">Vendor@12345</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Admin:</span>
+                <span className="font-semibold text-charcoal-900">admin@vendora.app</span>
+                <span className="text-charcoal-400">Admin@12345</span>
+              </div>
+            </div>
           </div>
         </div>
 

@@ -12,13 +12,17 @@ import {
   Sparkles,
   ShieldCheck
 } from 'lucide-react';
+import { Link, Navigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 
 export const CustomerProfilePage: React.FC = () => {
   const { user, activeEvent, savedVendorIds } = useApp();
 
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
   const [name, setName] = useState(user.name);
-  const [email, setEmail] = useState(user.email);
   const [phone, setPhone] = useState(user.phone || '+91 98221 00921');
   const [city, setCity] = useState(user.city || 'Pune');
   const [savedSuccess, setSavedSuccess] = useState(false);
@@ -59,7 +63,7 @@ export const CustomerProfilePage: React.FC = () => {
               Verified Host
             </span>
           </div>
-          <p className="text-xs text-charcoal-500">{email} • Planning in {city}</p>
+          <p className="text-xs text-charcoal-500">{user.email} • Planning in {city}</p>
           <div className="flex items-center gap-4 text-xs text-charcoal-400 pt-1">
             <span>Active Event: <strong className="text-charcoal-800">{activeEvent.name}</strong></span>
             <span>•</span>
@@ -94,13 +98,21 @@ export const CustomerProfilePage: React.FC = () => {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-charcoal-700 block">Email Address</label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold uppercase tracking-wider text-charcoal-700 block">
+                Email Address (Login ID)
+              </label>
+              <span className="text-[10px] text-charcoal-400 font-semibold">Locked</span>
+            </div>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-ivory-50 border border-borderBase rounded-xl px-4 py-2.5 text-xs font-semibold text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-coral-500"
+              disabled
+              value={user.email}
+              className="w-full bg-charcoal-100/70 border border-borderBase rounded-xl px-4 py-2.5 text-xs font-semibold text-charcoal-500 cursor-not-allowed"
             />
+            <p className="text-[10px] text-charcoal-400">
+              Your login ID is tied to your account credentials. To access a different user account, sign out and enter the new email and password.
+            </p>
           </div>
 
           <div className="space-y-1.5">

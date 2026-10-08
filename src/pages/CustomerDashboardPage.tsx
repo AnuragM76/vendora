@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { 
   Calendar, 
   MapPin, 
@@ -25,6 +25,10 @@ import { Vendor } from '../types';
 
 export const CustomerDashboardPage: React.FC = () => {
   const { user, activeEvent, savedVendorIds, bookings } = useApp();
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   const savedVendors = savedVendorIds
     .map(id => vendorService.getVendorById(id))
