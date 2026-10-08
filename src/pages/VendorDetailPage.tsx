@@ -39,6 +39,7 @@ export const VendorDetailPage: React.FC = () => {
 
   const vendor = vendorService.getVendorById(id || '');
 
+  const [copied, setCopied] = useState(false);
   const [activeImage, setActiveImage] = useState<string>('');
   const [selectedPackage, setSelectedPackage] = useState<VendorPackage | null>(null);
   const [showAiModal, setShowAiModal] = useState(false);
@@ -145,16 +146,22 @@ export const VendorDetailPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          {copied && (
+            <span className="text-[11px] font-semibold text-emeraldGreen bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 animate-fadeIn flex items-center gap-1">
+              <Check className="w-3 h-3" /> Link copied!
+            </span>
+          )}
           <button
             onClick={() => {
               if (navigator.share) {
                 navigator.share({ title: vendor.name, url: window.location.href });
               } else {
                 navigator.clipboard.writeText(window.location.href);
-                alert('Link copied to clipboard!');
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2200);
               }
             }}
-            className="p-2 rounded-lg border border-borderBase hover:bg-ivory-100 text-charcoal-700 transition-colors"
+            className="p-2 rounded-xl border border-borderBase hover:bg-ivory-100 text-charcoal-700 transition-colors shadow-subtle"
             title="Share"
           >
             <Share2 className="w-4 h-4" />

@@ -51,9 +51,11 @@ export const VendorDiscoveryPage: React.FC = () => {
   }, [searchParams]);
 
   const [dbVendors, setDbVendors] = useState<Vendor[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     let mounted = true;
+    setIsLoading(true);
     vendorApi
       .getVendors({ ...filters, searchQuery })
       .then((res) => {
@@ -61,7 +63,10 @@ export const VendorDiscoveryPage: React.FC = () => {
           setDbVendors(res.vendors);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        if (mounted) setIsLoading(false);
+      });
     return () => {
       mounted = false;
     };
@@ -232,7 +237,25 @@ export const VendorDiscoveryPage: React.FC = () => {
           </div>
 
           {/* Vendors Grid */}
-          {vendors.length === 0 ? (
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="bg-surface rounded-2xl border border-borderBase overflow-hidden shadow-card p-4 space-y-3">
+                  <div className="skeleton-box h-48 w-full rounded-xl" />
+                  <div className="flex items-center justify-between pt-1">
+                    <div className="skeleton-box h-4 w-24 rounded" />
+                    <div className="skeleton-box h-4 w-12 rounded" />
+                  </div>
+                  <div className="skeleton-box h-5 w-3/4 rounded" />
+                  <div className="skeleton-box h-4 w-1/2 rounded" />
+                  <div className="pt-3 border-t border-borderBase flex justify-between items-center">
+                    <div className="skeleton-box h-5 w-20 rounded" />
+                    <div className="skeleton-box h-8 w-24 rounded-lg" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : vendors.length === 0 ? (
             /* Polished Empty State */
             <div className="bg-surface rounded-3xl border border-borderBase p-12 text-center space-y-4 shadow-card">
               <div className="w-16 h-16 rounded-2xl bg-ivory-200 flex items-center justify-center mx-auto text-charcoal-400">

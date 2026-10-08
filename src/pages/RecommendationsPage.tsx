@@ -346,11 +346,49 @@ export const RecommendationsPage: React.FC = () => {
         </div>
 
         {/* Vendors Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {rankedVendors.map((vendor) => (
-            <VendorCard key={vendor.id} vendor={vendor} showMatchScore={true} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="bg-surface rounded-2xl border border-borderBase overflow-hidden shadow-card p-4 space-y-3">
+                <div className="skeleton-box h-48 w-full rounded-xl" />
+                <div className="flex items-center justify-between pt-1">
+                  <div className="skeleton-box h-4 w-24 rounded" />
+                  <div className="skeleton-box h-4 w-12 rounded" />
+                </div>
+                <div className="skeleton-box h-5 w-3/4 rounded" />
+                <div className="skeleton-box h-4 w-1/2 rounded" />
+                <div className="pt-3 border-t border-borderBase flex justify-between items-center">
+                  <div className="skeleton-box h-5 w-20 rounded" />
+                  <div className="skeleton-box h-8 w-24 rounded-lg" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : rankedVendors.length === 0 ? (
+          <div className="bg-surface rounded-3xl border border-borderBase p-12 text-center space-y-4 shadow-card">
+            <div className="w-14 h-14 rounded-2xl bg-ai-50 text-ai-600 flex items-center justify-center mx-auto">
+              <Sparkles className="w-7 h-7" />
+            </div>
+            <h3 className="text-xl font-bold font-serif text-charcoal-900">
+              No recommendations found for this category
+            </h3>
+            <p className="text-xs text-charcoal-500 max-w-md mx-auto">
+              Try switching category filter tabs or expand your event budget allocations.
+            </p>
+            <button
+              onClick={() => setSelectedCategory('All')}
+              className="px-5 py-2.5 rounded-xl bg-charcoal-900 text-white font-bold text-xs"
+            >
+              Show All Categories
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {rankedVendors.map((vendor) => (
+              <VendorCard key={vendor.id} vendor={vendor} showMatchScore={true} />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
