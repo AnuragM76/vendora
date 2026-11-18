@@ -1,0 +1,52 @@
+sequenceDiagram
+    autonumber
+    actor Client as Frontend Client (React)
+    participant AuthMW as Auth & Role Middleware
+    participant Validator as Zod Validator
+    participant Router as Express API Router
+    participant Service as Business & Rec Logic
+    participant Prisma as Prisma ORM
+    participant DB as PostgreSQL (Neon)
+
+    Note over Client, DB: Flow 1: User Login & Session Generation
+    Client->>Router: POST /api/auth/login { email, password }
+    Router->>Service: Verify credentials with Argon2
+    Service->>Prisma: findUnique(User by email)
+    Prisma->>DB: SELECT * FROM User WHERE email = ...
+    DB-->>Prisma: User Record & Hash
+    Prisma-->>Service: Return User
+    Service->>Prisma: create(Session with token & expiry)
+    Prisma->>DB: INSERT INTO Session (...)
+    DB-->>Prisma: Session Stored
+    Service-->>Router: Session Token
+    Router-->>Client: 200 OK + Set-Cookie (HTTP-Only Session Token)
+
+    Note over Client, DB: Flow 2: Recommendation Generation Request
+    Client->>AuthMW: GET /api/events/:eventId/recommendations (with Cookie)
+    AuthMW->>Prisma: Validate Session & User Role
+    Prisma->>DB: SELECT * FROM Session JOIN User
+    DB-->>Prisma: Active Valid Session
+    Prisma-->>AuthMW: User Authorized
+
+    AuthMW->>Router: Delegate to Controller
+    Router->>Service: Calculate Vendor Recommendation Scores
+    Service->>Prisma: Fetch Event Parameters & Matching Vendors
+    Prisma->>DB: Query Vendors, Categories, Packages & Reviews
+    DB-->>Prisma: Result sets
+    Prisma-->>Service: Vendor & Event Data
+
+    Note over Service: Execute Scoring Algorithm:<br/>• Budget Fit (25%)<br/>• Location Match (15%)<br/>• Rating (15%)<br/>• Availability (15%)<br/>• Style Fit (15%)<br/>• Experience (10%)<br/>• Event Fit (5%)
+
+    Service->>Prisma: upsert Recommendations
+    Prisma->>DB: Batch INSERT/UPDATE Recommendation
+    Service-->>Router: Formatted Ranked Recommendations & Dream Team
+    Router-->>Client: 200 OK (JSON with Scores, Explanations & Matrix)
+
+    Note over Client, DB: Flow 3: Booking Submission
+    Client->>Validator: POST /api/bookings { vendorId, eventId, date, agreedPrice }
+    Validator->>Router: Validated Input
+    Router->>Prisma: create(Booking with status 'PENDING')
+    Prisma->>DB: INSERT INTO Booking (...)
+    DB-->>Prisma: Booking Created
+    Prisma-->>Router: Confirmation Record
+    Router-->>Client: 201 Created (Booking Details)

@@ -1,0 +1,39 @@
+flowchart TD
+    subgraph ClientLayer["Frontend Layer (Client)"]
+        React["React 18 (SPA)"]
+        TS_Client["TypeScript"]
+        Vite["Vite Bundler"]
+        Tailwind["Tailwind CSS + Lucide Icons"]
+        Router["React Router DOM v6"]
+        Context["Auth & App Context (State)"]
+    end
+
+    subgraph TransportLayer["API & Communication Layer"]
+        FetchClient["Axios / Fetch Client"]
+        Cookies["Secure HTTP-Only Cookie Sessions"]
+        JSON["REST / JSON payloads"]
+    end
+
+    subgraph ServerLayer["Backend Layer (Node.js)"]
+        Express["Express.js Server / Serverless Funcs"]
+        TS_Server["TypeScript"]
+        Middleware["Auth & Session Middleware"]
+        Argon2["Argon2 Password Hashing"]
+        Zod["Zod Validation Engine"]
+        Engine["Deterministic Recommendation Engine"]
+    end
+
+    subgraph DataLayer["Persistence & Database Layer"]
+        Prisma["Prisma ORM (Client & Migrate)"]
+        Postgres[("PostgreSQL (Neon Serverless DB)")]
+    end
+
+    subgraph DeploymentLayer["Cloud & Infrastructure"]
+        Vercel["Vercel Cloud Platform"]
+    end
+
+    ClientLayer --> TransportLayer
+    TransportLayer --> ServerLayer
+    ServerLayer --> DataLayer
+    ServerLayer -.-> DeploymentLayer
+    ClientLayer -.-> DeploymentLayer

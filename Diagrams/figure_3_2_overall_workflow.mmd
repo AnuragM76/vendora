@@ -1,0 +1,45 @@
+flowchart TD
+    Start([User Visits VENDORA]) --> Auth{Logged in?}
+    Auth -- No --> Login[Sign Up / Login via Session Auth]
+    Auth -- Yes --> EventChoice[Select Existing Event or Create New]
+    Login --> EventChoice
+
+    EventChoice --> InputParams[Enter Event Details:<br/>Date, City, Guest Count, Budget, Required Services]
+    InputParams --> APIReq[POST /api/events ➔ Stored in Database]
+
+    APIReq --> TriggerEngine[Trigger Algorithmic Recommendation Engine]
+    
+    subgraph EngineEval["Multi-Criteria Scoring Engine (0-100)"]
+        W1[Budget Fit - 25%]
+        W2[Location Proximity - 15%]
+        W3[Rating Quality - 15%]
+        W4[Date Availability - 15%]
+        W5[Style Match - 15%]
+        W6[Experience - 10%]
+        W7[Event Fit - 5%]
+    end
+
+    TriggerEngine --> EngineEval
+    EngineEval --> KnapsackOpt["Dream Team Combinatorial Optimizer<br/>(Greedy Budget Knapsack)"]
+
+    KnapsackOpt --> DisplayResults[Display Ranked Vendors & Dream Team Bundle]
+    DisplayResults --> ActionChoice{User Decision}
+
+    ActionChoice -->|Compare 2-4 Vendors| CompareMatrix[Side-by-Side Comparison Matrix<br/>Prices, Ratings, Deliverables]
+    ActionChoice -->|Save Vendor| Shortlist[Bookmark to Saved Shortlist]
+    ActionChoice -->|Direct Booking| SelectPkg[Select Vendor Package Tier]
+
+    CompareMatrix --> SelectPkg
+    Shortlist --> SelectPkg
+
+    SelectPkg --> SubmitBooking[Submit Booking Request<br/>Status: PENDING]
+    SubmitBooking --> NotifyVendor[Vendor Receives Lead on Dashboard]
+    
+    NotifyVendor --> VendorAction{Vendor Review}
+    VendorAction -- Accept --> Confirmed[Status: CONFIRMED & Budget Allocated]
+    VendorAction -- Decline --> Declined[Status: DECLINED]
+    
+    Confirmed --> PostEvent[Event Completion]
+    PostEvent --> SubmitReview[Customer Submits 1-5 Star Review & Rating]
+    SubmitReview --> UpdateRating[Prisma Recalculates Vendor Rating in PostgreSQL]
+    UpdateRating --> End([Workflow Completed])

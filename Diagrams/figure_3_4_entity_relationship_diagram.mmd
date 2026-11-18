@@ -1,0 +1,103 @@
+erDiagram
+    User ||--o| VendorProfile : "has profile"
+    User ||--o{ Session : "authenticates"
+    User ||--o{ Event : "creates"
+    User ||--o{ Booking : "requests"
+    User ||--o{ Review : "writes"
+    User ||--o{ SavedVendor : "bookmarks"
+
+    Category ||--o{ VendorProfile : "categorizes"
+
+    VendorProfile ||--o{ VendorService : "offers"
+    VendorProfile ||--o{ VendorPackage : "provides"
+    VendorProfile ||--o{ PortfolioItem : "showcases"
+    VendorProfile ||--o{ Availability : "schedules"
+    VendorProfile ||--o{ Booking : "receives"
+    VendorProfile ||--o{ Review : "rated by"
+    VendorProfile ||--o{ SavedVendor : "saved in"
+    VendorProfile ||--o{ Recommendation : "scored for"
+
+    Event ||--o{ Booking : "associates"
+    Event ||--o{ Recommendation : "generates"
+
+    User {
+        string id PK
+        string name
+        string email UK
+        string passwordHash
+        string role "CUSTOMER | VENDOR | ADMIN"
+        string phone
+        string city
+        datetime createdAt
+    }
+
+    Session {
+        string id PK
+        string userId FK
+        string token UK
+        datetime expiresAt
+    }
+
+    Category {
+        string id PK
+        string name UK
+        string description
+    }
+
+    VendorProfile {
+        string id PK
+        string userId FK
+        string categoryId FK
+        string businessName
+        string location
+        int experienceYears
+        int startingPrice
+        float rating
+        int reviewCount
+        boolean verified
+        boolean availability
+        string[] styles
+        string[] serviceAreas
+    }
+
+    Event {
+        string id PK
+        string userId FK
+        string title
+        string eventType
+        datetime eventDate
+        string city
+        int guestCount
+        int totalBudget
+        string[] requiredServices
+    }
+
+    Booking {
+        string id PK
+        string eventId FK
+        string vendorId FK
+        string customerId FK
+        string status "PENDING | CONFIRMED | DECLINED | COMPLETED"
+        int agreedPrice
+        datetime eventDate
+        string notes
+    }
+
+    Review {
+        string id PK
+        string vendorId FK
+        string customerId FK
+        int rating "1 to 5"
+        string comment
+        datetime createdAt
+    }
+
+    Recommendation {
+        string id PK
+        string eventId FK
+        string vendorId FK
+        float overallScore
+        float budgetFitScore
+        float locationScore
+        float ratingScore
+    }

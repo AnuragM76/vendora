@@ -1,0 +1,46 @@
+flowchart LR
+    Customer(("👤 Customer / Host"))
+    Vendor(("🏢 Vendor / Service Provider"))
+    Admin(("🛡️ Platform Admin"))
+
+    subgraph SystemBoundary["VENDORA Platform System Boundary"]
+        UC1["Register & Authenticate Account"]
+        UC2["Create & Manage Events"]
+        UC3["Define Budget & Required Services"]
+        UC4["View Algorithmic Recommendations"]
+        UC5["View Dream Team Optimized Bundle"]
+        UC6["Compare 2 to 4 Vendors Side-by-Side"]
+        UC7["Bookmark Vendors to Shortlist"]
+        UC8["Submit Package Booking Request"]
+        UC9["Submit Post-Event Verified Review"]
+        
+        UC10["Manage Business Profile & Portfolio"]
+        UC11["Configure Pricing & Service Packages"]
+        UC12["Manage Date Availability & Calendar"]
+        UC13["Accept or Decline Booking Leads"]
+        
+        UC14["Audit Platform Metrics & Volume"]
+        UC15["Review & Verify Vendor Credentials"]
+        UC16["Manage Service Categories & Users"]
+    end
+
+    Customer --> UC1
+    Customer --> UC2
+    Customer --> UC3
+    Customer --> UC4
+    Customer --> UC5
+    Customer --> UC6
+    Customer --> UC7
+    Customer --> UC8
+    Customer --> UC9
+
+    Vendor --> UC1
+    Vendor --> UC10
+    Vendor --> UC11
+    Vendor --> UC12
+    Vendor --> UC13
+
+    Admin --> UC1
+    Admin --> UC14
+    Admin --> UC15
+    Admin --> UC16

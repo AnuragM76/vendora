@@ -1,0 +1,44 @@
+flowchart TD
+    UserBrowser["End Users (Customer / Vendor / Admin)"]
+
+    subgraph Edge["Network & Edge Gateway"]
+        VercelEdge["Vercel Edge Network / CDN"]
+        StaticAssets["Static Frontend SPA (/dist)"]
+        APIGateway["Vercel Serverless Function Handler (/api/*)"]
+    end
+
+    subgraph AppServer["Backend Application Server"]
+        Router["Express Application Router"]
+        
+        subgraph Middlewares["Security & Validation Middlewares"]
+            Cors["CORS Handler"]
+            CookieAuth["Session Cookie Authenticator"]
+            RoleGuard["Role-Based Guard (RBAC)"]
+            ZodValid["Zod Request Validator"]
+        end
+
+        subgraph CoreControllers["Business Logic & Controllers"]
+            AuthCtrl["Auth Controller"]
+            VendorCtrl["Vendor & Marketplace Controller"]
+            EventCtrl["Event Planner Controller"]
+            BookingCtrl["Booking Lifecycle Controller"]
+            RecEngine["Recommendation & Comparison Engine"]
+            AdminCtrl["Admin Audit & Analytics"]
+        end
+    end
+
+    subgraph DataTier["Data Tier"]
+        PrismaORM["Prisma Client ORM Engine"]
+        PostgresDB[("Neon Serverless PostgreSQL Database")]
+    end
+
+    UserBrowser -->|"1. Requests HTML/JS/Assets"| StaticAssets
+    UserBrowser -->|"2. REST API Requests (HTTPS & Cookie)"| APIGateway
+
+    StaticAssets -. Hosted on .-> VercelEdge
+    APIGateway --> Router
+
+    Router --> Middlewares
+    Middlewares --> CoreControllers
+    CoreControllers --> PrismaORM
+    PrismaORM -->|"Connection Pool / SQL"| PostgresDB

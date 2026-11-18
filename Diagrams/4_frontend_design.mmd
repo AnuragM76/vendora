@@ -1,0 +1,63 @@
+flowchart TD
+    subgraph RootLayout["Root Level: App.tsx & Providers"]
+        App["App Root"]
+        AuthProvider["AuthContext / State Provider"]
+        Nav["Navigation Bar / Header"]
+        Footer["Global Footer"]
+    end
+
+    subgraph RouterTree["React Router (Role-Based Protected Routes)"]
+        PublicRoutes["Public Pages"]
+        CustomerRoutes["Customer Protected Routes"]
+        VendorRoutes["Vendor Protected Routes"]
+        AdminRoutes["Admin Protected Routes"]
+    end
+
+    subgraph PagesCustomer["Customer Feature Modules"]
+        Home["Landing & Hero Page"]
+        Marketplace["Vendor Discovery & Search Grid"]
+        VendorDetails["Vendor Profile & Package Selector"]
+        Comparison["Side-by-Side Comparison Matrix"]
+        Planner["Event Creation & Budget Calculator"]
+        Recommendations["Smart Recommendation & Dream Team View"]
+        BookingFlow["Booking Modal & Checkout"]
+        Shortlist["Saved Shortlist Drawer"]
+    end
+
+    subgraph PagesVendor["Vendor Dashboard Modules"]
+        VendorDash["Vendor Hub"]
+        BookingManager["Manage Requests (Accept / Decline)"]
+        ProfileEditor["Catalog, Tiered Packages & Media"]
+    end
+
+    subgraph PagesAdmin["Admin Control Modules"]
+        AdminDash["Analytics & Metric Counters"]
+        VerifyVendors["Verification Approval Queue"]
+    end
+
+    App --> AuthProvider
+    AuthProvider --> Nav
+    AuthProvider --> RouterTree
+    AuthProvider --> Footer
+
+    RouterTree --> PublicRoutes
+    RouterTree --> CustomerRoutes
+    RouterTree --> VendorRoutes
+    RouterTree --> AdminRoutes
+
+    PublicRoutes --> Home
+    PublicRoutes --> Marketplace
+    PublicRoutes --> VendorDetails
+
+    CustomerRoutes --> Planner
+    CustomerRoutes --> Recommendations
+    CustomerRoutes --> Comparison
+    CustomerRoutes --> BookingFlow
+    CustomerRoutes --> Shortlist
+
+    VendorRoutes --> VendorDash
+    VendorDash --> BookingManager
+    VendorDash --> ProfileEditor
+
+    AdminRoutes --> AdminDash
+    AdminDash --> VerifyVendors
