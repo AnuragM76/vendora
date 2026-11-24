@@ -15,7 +15,8 @@ import {
   SlidersHorizontal, 
   ChevronDown, 
   Package,
-  Check
+  Check,
+  Star
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { mockVendors } from '../data/vendors';
@@ -159,7 +160,7 @@ export const RecommendationsPage: React.FC = () => {
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-ai-600">✦ VENDORA AI Planning Insight</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-charcoal-700">Vendor Synergy Optimization</span>
             </div>
             <h3 className="text-base font-bold text-charcoal-900">
               Bundle Opportunity: Photography + Decoration Combo
@@ -172,7 +173,7 @@ export const RecommendationsPage: React.FC = () => {
 
         <Link
           to="/compare"
-          className="shrink-0 px-4 py-2.5 rounded-xl bg-ai-900 hover:bg-ai-800 text-white font-bold text-xs shadow-subtle transition-all"
+          className="shrink-0 px-4 py-2.5 rounded-xl bg-charcoal-900 hover:bg-charcoal-800 text-white font-bold text-xs shadow-subtle transition-all"
         >
           Compare Alternatives
         </Link>
@@ -194,13 +195,13 @@ export const RecommendationsPage: React.FC = () => {
                 <div>
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-coral-100 text-coral-800 text-[11px] font-bold uppercase tracking-wider mb-2">
                     <Sparkles className="w-3.5 h-3.5 text-coral-600" />
-                    <span>AI-Optimized Multi-Vendor Combination</span>
+                    <span>Curated Multi-Vendor Combination</span>
                   </div>
                   <h3 className="text-xl sm:text-2xl font-bold font-serif text-charcoal-900">
                     Curated Vendor Team for {activeEvent.name}
                   </h3>
                   <p className="text-xs text-charcoal-600 mt-1">
-                    Algorithmically curated to maximize quality ({apiCombination.averageRating}★ average rating) with {apiCombination.overallMatch}% match score.
+                    Algorithmically curated to maximize quality ({apiCombination.averageRating} average rating) with {apiCombination.overallMatch}% match score.
                   </p>
                 </div>
                 <div className="text-left sm:text-right bg-surface px-5 py-3 rounded-2xl border border-borderBase shadow-sm">
@@ -221,7 +222,7 @@ export const RecommendationsPage: React.FC = () => {
                       </span>
                       <h4 className="font-bold text-sm text-charcoal-900 mt-1.5 truncate">{item.vendorName}</h4>
                       <div className="flex items-center gap-2 text-xs text-charcoal-500 mt-1">
-                        <span>★ {item.rating}</span>
+                        <span className="flex items-center gap-0.5"><Star className="w-3 h-3 fill-gold-500 text-gold-500 inline" /> {item.rating}</span>
                         <span>•</span>
                         <span className="text-emeraldGreen font-semibold">{item.matchScore}% Match</span>
                       </div>

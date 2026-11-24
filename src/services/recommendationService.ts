@@ -72,7 +72,7 @@ export function calculateVendorMatch(vendor: Vendor, event: EventPlan): MatchBre
   const reasons: string[] = [];
   if (budgetScore >= 85) reasons.push('Well aligned with your estimated budget');
   if (locationScore >= 90) reasons.push(`Located directly in ${event.location}`);
-  if (vendor.rating >= 4.8) reasons.push(`Exceptional ${vendor.rating}★ rating from verified couples`);
+  if (vendor.rating >= 4.8) reasons.push(`Exceptional ${vendor.rating}/5.0 rating from verified clients`);
   if (matchingStyles.length > 0) reasons.push(`Specializes in your preferred ${matchingStyles.join(' & ')} aesthetic`);
   if (vendor.availability) reasons.push('Confirmed available for your requested event timeframe');
   if (vendor.experience >= 8) reasons.push(`Seasoned professional with ${vendor.experience}+ years in high-profile events`);

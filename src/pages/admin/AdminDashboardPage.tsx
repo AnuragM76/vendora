@@ -15,7 +15,8 @@ import {
   Clock, 
   AlertTriangle,
   Building,
-  BarChart3
+  BarChart3,
+  Star
 } from 'lucide-react';
 import { formatINR } from '../../components/common/PriceDisplay';
 
@@ -276,14 +277,19 @@ export const AdminDashboardPage: React.FC = () => {
                       <span>{vendor.name}</span>
                       {vendor.documentsVerified && (
                         <span title="Documents Attached" className="text-[10px] text-emeraldGreen font-semibold">
-                          (Docs ✓)
+                          (Verified Docs)
                         </span>
                       )}
                     </div>
                   </td>
                   <td className="py-4 text-charcoal-600 font-medium">{vendor.category}</td>
                   <td className="py-4 text-charcoal-600">{vendor.location}</td>
-                  <td className="py-4 font-semibold text-charcoal-800">{vendor.rating} ★</td>
+                  <td className="py-4 font-semibold text-charcoal-800">
+                    <span className="inline-flex items-center gap-1">
+                      <Star className="w-3.5 h-3.5 fill-gold-500 text-gold-500" />
+                      <span>{typeof vendor.rating === 'number' ? vendor.rating.toFixed(1) : vendor.rating}</span>
+                    </span>
+                  </td>
                   <td className="py-4 text-charcoal-500">{vendor.joinedDate}</td>
                   <td className="py-4">
                     <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${

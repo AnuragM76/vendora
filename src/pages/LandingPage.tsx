@@ -147,7 +147,7 @@ export const LandingPage: React.FC = () => {
                   <div className="text-xs text-charcoal-500 font-medium mt-0.5">Budget Match Rate</div>
                 </div>
                 <div>
-                  <div className="text-2xl sm:text-3xl font-extrabold font-serif text-charcoal-900">4.9 ★</div>
+                  <div className="text-2xl sm:text-3xl font-extrabold font-serif text-charcoal-900">4.9 / 5.0</div>
                   <div className="text-xs text-charcoal-500 font-medium mt-0.5">Average Rating</div>
                 </div>
               </div>
@@ -440,7 +440,7 @@ export const LandingPage: React.FC = () => {
 
                   <div className="flex items-center gap-1.5 text-xs text-charcoal-300 pt-1">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span>Available on requested date • Rated 4.9★ (142 reviews)</span>
+                    <span>Available on requested date • Rated 4.9 (142 reviews)</span>
                   </div>
                 </div>
 
@@ -493,7 +493,10 @@ export const LandingPage: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-charcoal-500">Rating</span>
-                  <span className="font-bold text-gold-600">4.9 ★ (142 reviews)</span>
+                  <span className="font-bold text-gold-600 flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-gold-500 text-gold-500" />
+                    <span>4.9 (142 reviews)</span>
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-charcoal-500">Availability</span>
@@ -530,7 +533,10 @@ export const LandingPage: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-charcoal-500">Rating</span>
-                  <span className="font-bold text-gold-600">4.8 ★ (96 reviews)</span>
+                  <span className="font-bold text-gold-600 flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-gold-500 text-gold-500" />
+                    <span>4.8 (96 reviews)</span>
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-charcoal-500">Availability</span>
@@ -567,7 +573,10 @@ export const LandingPage: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-charcoal-500">Rating</span>
-                  <span className="font-bold text-gold-600">4.8 ★ (65 reviews)</span>
+                  <span className="font-bold text-gold-600 flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-gold-500 text-gold-500" />
+                    <span>4.8 (65 reviews)</span>
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-charcoal-500">Availability</span>

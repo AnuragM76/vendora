@@ -63,7 +63,7 @@ export const CustomerDashboardPage: React.FC = () => {
             Personal Event Command Center
           </span>
           <h1 className="text-2xl sm:text-3xl font-serif font-bold text-charcoal-900 mt-0.5">
-            Good evening, {user.name.split(' ')[0]} 👋
+            Good evening, {user.name.split(' ')[0]}
           </h1>
           <p className="text-xs sm:text-sm text-charcoal-500">
             Let's make your upcoming celebration unforgettable.
@@ -83,7 +83,7 @@ export const CustomerDashboardPage: React.FC = () => {
             className="px-4 py-2.5 rounded-xl bg-coral-500 hover:bg-coral-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-subtle transition-all"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>AI Match Engine</span>
+            <span>Match Engine</span>
           </Link>
         </div>
       </div>
@@ -237,7 +237,7 @@ export const CustomerDashboardPage: React.FC = () => {
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-xs font-bold text-ai-700 uppercase tracking-wider">✦ VENDORA AI Optimization</div>
+            <div className="text-xs font-bold text-ai-700 uppercase tracking-wider">Vendora Recommendation Engine</div>
             <p className="text-xs sm:text-sm text-charcoal-700 mt-0.5">
               You can save approximately <strong className="text-emeraldGreen">₹18,000</strong> by choosing the recommended photography + decoration combination in Pune.
             </p>

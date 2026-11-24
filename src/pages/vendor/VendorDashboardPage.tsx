@@ -159,7 +159,7 @@ export const VendorDashboardPage: React.FC = () => {
             <Sparkles className="w-3.5 h-3.5 text-ai-500" />
           </div>
           <div className="text-2xl font-extrabold text-charcoal-900 mt-2 font-serif">92%</div>
-          <p className="text-[11px] text-emeraldGreen font-semibold mt-1">Ready for AI Matching</p>
+          <p className="text-[11px] text-emeraldGreen font-semibold mt-1">Profile Complete &amp; Active</p>
         </div>
 
         <div className="bg-surface p-5 rounded-2xl border border-borderBase shadow-card">
@@ -194,7 +194,10 @@ export const VendorDashboardPage: React.FC = () => {
             <span>Average Rating</span>
             <Star className="w-3.5 h-3.5 fill-gold-500 text-gold-500" />
           </div>
-          <div className="text-2xl font-extrabold text-charcoal-900 mt-2 font-serif">4.9 ★</div>
+          <div className="text-2xl font-extrabold text-charcoal-900 mt-2 font-serif flex items-center gap-1.5">
+            <span>4.9</span>
+            <span className="text-xs text-charcoal-400 font-sans font-normal">/ 5.0</span>
+          </div>
           <p className="text-[11px] text-charcoal-400 mt-1">142 Verified Reviews</p>
         </div>
       </div>

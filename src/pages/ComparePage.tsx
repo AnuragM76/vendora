@@ -356,17 +356,17 @@ export const ComparePage: React.FC = () => {
             </div>
           </div>
 
-          {/* SECTION 57: AI DECISION SUPPORT PANEL */}
+          {/* SECTION 57: VENDORA DECISION SUPPORT PANEL */}
           {bestOverall && (
             <div className="bg-gradient-to-br from-charcoal-950 via-charcoal-900 to-charcoal-950 text-white rounded-3xl p-6 sm:p-8 border border-charcoal-800 shadow-elevated space-y-6">
-              <div className="flex items-center gap-2 text-ai-400 text-xs font-bold uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-gold-400 text-xs font-bold uppercase tracking-wider">
                 <Sparkles className="w-4 h-4" />
-                <span>✦ AI Decision Support</span>
+                <span>Decision Support Matrix</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-charcoal-800/80 border border-charcoal-700/80 p-4 rounded-2xl">
-                  <span className="text-[10px] uppercase font-bold text-ai-300 block">Best Overall Fit</span>
+                  <span className="text-[10px] uppercase font-bold text-coral-300 block">Best Overall Fit</span>
                   <div className="text-base font-bold font-serif text-white mt-1">{bestOverall.name}</div>
                   <p className="text-xs text-charcoal-400 mt-1">Match Score: {bestOverall.match.overall}%</p>
                 </div>
@@ -383,7 +383,7 @@ export const ComparePage: React.FC = () => {
                   <div className="bg-charcoal-800/80 border border-charcoal-700/80 p-4 rounded-2xl">
                     <span className="text-[10px] uppercase font-bold text-gold-400 block">Highest Client Acclaim</span>
                     <div className="text-base font-bold font-serif text-white mt-1">{bestRated.name}</div>
-                    <p className="text-xs text-charcoal-400 mt-1">{bestRated.rating}★ across {bestRated.reviewCount} reviews</p>
+                    <p className="text-xs text-charcoal-400 mt-1">{bestRated.rating} rating across {bestRated.reviewCount} reviews</p>
                   </div>
                 )}
               </div>
@@ -407,7 +407,14 @@ export const ComparePage: React.FC = () => {
           <div className="bg-surface rounded-3xl border border-borderBase shadow-floating max-w-xl w-full p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-borderBase pb-3">
               <h3 className="text-base font-bold font-serif text-charcoal-900">Add Vendor to Comparison</h3>
-              <button onClick={() => setAddVendorModalOpen(false)} className="text-charcoal-400">✕</button>
+              <button 
+                type="button"
+                onClick={() => setAddVendorModalOpen(false)} 
+                className="text-charcoal-400 hover:text-charcoal-700 p-1"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             <p className="text-xs text-charcoal-500">

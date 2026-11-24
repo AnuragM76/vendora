@@ -8,7 +8,8 @@ import {
   Sparkles, 
   MapPin, 
   Layers,
-  ChevronDown
+  ChevronDown,
+  Star
 } from 'lucide-react';
 import { vendorService, VendorFilterOptions } from '../services/vendorService';
 import { vendorApi } from '../services/api';
@@ -201,7 +202,8 @@ export const VendorDiscoveryPage: React.FC = () => {
 
               {filters.minRating && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gold-50 text-gold-800 border border-gold-200">
-                  {filters.minRating}★+
+                  <Star className="w-3 h-3 fill-gold-500 text-gold-500" />
+                  {filters.minRating}+ Stars
                   <button onClick={() => removeFilterTag('minRating')}>
                     <X className="w-3 h-3 hover:text-gold-900" />
                   </button>
@@ -226,8 +228,8 @@ export const VendorDiscoveryPage: React.FC = () => {
                 onChange={(e) => setFilters({ ...filters, sortBy: e.target.value as any })}
                 className="bg-ivory-100 border border-borderBase rounded-xl px-3 py-1.5 text-xs font-semibold text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-coral-500 cursor-pointer"
               >
-                <option value="recommended">AI Recommended</option>
-                <option value="rating">Highest Rated (★)</option>
+                <option value="recommended">Best Match</option>
+                <option value="rating">Highest Client Rating</option>
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
                 <option value="experience">Most Experienced</option>

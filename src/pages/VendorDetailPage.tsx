@@ -19,7 +19,8 @@ import {
   ArrowLeft,
   ChevronRight,
   ShieldCheck,
-  MessageSquare
+  MessageSquare,
+  X
 } from 'lucide-react';
 import { vendorService } from '../services/vendorService';
 import { useApp } from '../context/AppContext';
@@ -621,9 +622,10 @@ export const VendorDetailPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setBookingModalOpen(false)}
-                    className="text-charcoal-400 hover:text-charcoal-800"
+                    className="text-charcoal-400 hover:text-charcoal-700 p-1"
+                    aria-label="Close"
                   >
-                    ✕
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
 
@@ -697,7 +699,14 @@ export const VendorDetailPage: React.FC = () => {
               <form onSubmit={handleReviewSubmit} className="space-y-4">
                 <div className="flex items-center justify-between border-b border-borderBase pb-3">
                   <h3 className="text-base font-bold font-serif text-charcoal-900">Review {vendor.name}</h3>
-                  <button type="button" onClick={() => setReviewModalOpen(false)} className="text-charcoal-400">✕</button>
+                  <button 
+                    type="button" 
+                    onClick={() => setReviewModalOpen(false)} 
+                    className="text-charcoal-400 hover:text-charcoal-700 p-1"
+                    aria-label="Close"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
 
                 <div className="space-y-1.5 text-center">
