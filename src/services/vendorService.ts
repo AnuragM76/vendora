@@ -169,6 +169,9 @@ export const vendorService = {
       'DJ',
       'Videography',
       'Event Planning',
+      'Shadow',
+      'Live Painting',
+      'Anchors',
     ];
   },
 

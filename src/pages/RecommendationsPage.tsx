@@ -72,6 +72,9 @@ export const RecommendationsPage: React.FC = () => {
     'DJ',
     'Videography',
     'Event Planning',
+    'Shadow',
+    'Live Painting',
+    'Anchors',
   ];
 
   return (

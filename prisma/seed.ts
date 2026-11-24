@@ -13,6 +13,9 @@ const CATEGORY_NAMES = [
   'DJ',
   'Videography',
   'Event Planning',
+  'Shadow',
+  'Live Painting',
+  'Anchors',
   'Mehendi',
   'Florist',
 ];

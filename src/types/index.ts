@@ -6,7 +6,10 @@ export type CategoryType =
   | 'Makeup' 
   | 'DJ' 
   | 'Videography' 
-  | 'Event Planning';
+  | 'Event Planning'
+  | 'Shadow'
+  | 'Live Painting'
+  | 'Anchors';
 
 export type EventType =
   | 'Wedding'
@@ -15,6 +18,7 @@ export type EventType =
   | 'Corporate'
   | 'Anniversary'
   | 'Party'
+  | 'Retirement'
   | 'College Event'
   | 'Other';
 

@@ -14,7 +14,8 @@ import {
   Cake, 
   Briefcase, 
   Music,
-  CheckCircle2
+  CheckCircle2,
+  Award
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { EventPlan, EventType, CategoryType } from '../types';
@@ -110,6 +111,7 @@ export const NewEventPage: React.FC = () => {
     { type: 'Birthday', desc: 'Milestone years, themed parties & banquets', icon: Cake },
     { type: 'Corporate', desc: 'Annual galas, conferences & leadership offsites', icon: Briefcase },
     { type: 'Anniversary', desc: 'Silver/Golden jubilee celebrations & romantic dinners', icon: PartyPopper },
+    { type: 'Retirement', desc: 'Distinguished career milestones, felicitations & farewell galas', icon: Award },
     { type: 'Party', desc: 'Cocktail evenings, reunions & festive bashes', icon: Music },
   ];
 
@@ -121,7 +123,10 @@ export const NewEventPage: React.FC = () => {
     'Makeup',
     'DJ',
     'Videography',
-    'Event Planning'
+    'Event Planning',
+    'Shadow',
+    'Live Painting',
+    'Anchors'
   ];
 
   const allPreferences = [

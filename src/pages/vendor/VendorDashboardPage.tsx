@@ -32,6 +32,7 @@ interface BookingRequest {
 }
 
 export const VendorDashboardPage: React.FC = () => {
+  const { user } = useApp();
   const [activeTab, setActiveTab] = useState<'overview' | 'bookings' | 'packages' | 'portfolio' | 'availability'>('overview');
 
   // Interactive booking requests
@@ -106,27 +107,28 @@ export const VendorDashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-8 text-left">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-borderBase pb-6">
+      {/* Header Banner - Distinct Merchant Branding */}
+      <div className="bg-gradient-to-r from-[#241c15] via-[#1c1712] to-[#14100c] text-amber-50 p-6 sm:p-8 rounded-3xl border border-amber-900/40 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-coral-600">
-              Vendor Partner Hub
+          <div className="flex items-center gap-2 mb-2">
+            <span className="px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1.5">
+              <Store className="w-3.5 h-3.5 text-amber-400" />
+              Vendor Partner Dashboard
             </span>
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emeraldGreen bg-emerald-50 px-2.5 py-0.5 rounded-full">
-              <ShieldCheck className="w-3.5 h-3.5" /> Verified Business
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-300 bg-emerald-950/60 border border-emerald-800/60 px-2.5 py-0.5 rounded-full">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Verified Merchant Account
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-charcoal-900 mt-1">
-            Good morning, Lens & Light Studio
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-white mt-1">
+            {user?.name || 'Lens & Light Studio'}
           </h1>
-          <p className="text-xs sm:text-sm text-charcoal-500">
-            Koregaon Park, Pune • Premium Candid Wedding Photography Partner
+          <p className="text-xs sm:text-sm text-amber-200/70 mt-1">
+            {user?.city || 'Pune'} • Verified Event Service Specialist Partner
           </p>
         </div>
 
         {/* Tab switcher */}
-        <div className="flex items-center gap-1 bg-surface p-1 rounded-xl border border-borderBase overflow-x-auto">
+        <div className="flex items-center gap-1 bg-black/40 p-1.5 rounded-2xl border border-amber-800/40 overflow-x-auto self-start md:self-auto">
           {[
             { id: 'overview', label: 'Overview' },
             { id: 'bookings', label: 'Requests (2)' },
@@ -137,10 +139,10 @@ export const VendorDashboardPage: React.FC = () => {
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id as any)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                 activeTab === t.id
-                  ? 'bg-charcoal-900 text-white shadow-sm'
-                  : 'text-charcoal-600 hover:bg-ivory-100'
+                  ? 'bg-amber-500 text-charcoal-950 shadow-md font-extrabold'
+                  : 'text-amber-200/70 hover:text-white hover:bg-white/10'
               }`}
             >
               {t.label}

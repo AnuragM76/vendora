@@ -25,7 +25,10 @@ import {
   ChevronUp,
   HelpCircle,
   Clock,
-  HeartHandshake
+  HeartHandshake,
+  UserCheck,
+  Paintbrush,
+  Mic2
 } from 'lucide-react';
 import { vendorService } from '../services/vendorService';
 import { VendorCard } from '../components/vendor/VendorCard';
@@ -58,6 +61,9 @@ export const LandingPage: React.FC = () => {
     { name: 'DJ', icon: Music, count: '50+ DJs & Bands', image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80' },
     { name: 'Videography', icon: Video, count: '60+ Filmmakers', image: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=600&q=80' },
     { name: 'Event Planning', icon: Award, count: '45+ Turnkey Planners', image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=600&q=80' },
+    { name: 'Shadow', icon: UserCheck, count: '30+ Bridal & Groom Shadows', image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80' },
+    { name: 'Live Painting', icon: Paintbrush, count: '25+ Fine Artists', image: 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=600&q=80' },
+    { name: 'Anchors', icon: Mic2, count: '40+ Emcees & Presenters', image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80' },
   ];
 
   const faqs = [
@@ -212,6 +218,7 @@ export const LandingPage: React.FC = () => {
                   <option value="Birthday">Birthday</option>
                   <option value="Corporate">Corporate</option>
                   <option value="Anniversary">Anniversary</option>
+                  <option value="Retirement">Retirement</option>
                   <option value="Party">Party</option>
                 </select>
               </div>
@@ -273,6 +280,9 @@ export const LandingPage: React.FC = () => {
                   <option value="DJ">DJ & Music</option>
                   <option value="Videography">Videography</option>
                   <option value="Event Planning">Event Planners</option>
+                  <option value="Shadow">Shadow / Attendant</option>
+                  <option value="Live Painting">Live Painting</option>
+                  <option value="Anchors">Anchors & Emcees</option>
                 </select>
               </div>
 

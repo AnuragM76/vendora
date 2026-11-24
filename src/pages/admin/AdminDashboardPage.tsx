@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { adminApi, vendorApi } from '../../services/api';
 import { 
   ShieldCheck, 
+  Shield,
   Users, 
   Store, 
   TicketCheck, 
@@ -135,24 +136,30 @@ export const AdminDashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-8 text-left">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-borderBase pb-6">
+      {/* Header Banner - Distinct Root Platform Security Aesthetic */}
+      <div className="bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] text-slate-100 p-6 sm:p-8 rounded-3xl border border-slate-700 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-coral-600">
-            Platform Administration
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-charcoal-900 mt-1">
-            VENDORA Control Center
+          <div className="flex items-center gap-2 mb-2">
+            <span className="px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1.5">
+              <Shield className="w-3.5 h-3.5 text-indigo-400" />
+              Platform Command Center
+            </span>
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-300 bg-emerald-950/60 border border-emerald-800/60 px-2.5 py-0.5 rounded-full">
+              System Online • Audit Logging Active
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-white mt-1">
+            VENDORA Platform Administration
           </h1>
-          <p className="text-xs sm:text-sm text-charcoal-500">
-            Monitor platform metrics, user engagement, and vendor verification compliance.
+          <p className="text-xs sm:text-sm text-slate-300 mt-1">
+            Global governance: verify vendor credentials, audit compliance, monitor bookings, and manage service categories.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5" />
-            {pendingCount} Verifications Pending
+        <div className="flex items-center gap-3">
+          <span className="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-200 border border-amber-500/30 flex items-center gap-2 shadow-sm">
+            <Clock className="w-4 h-4 text-amber-400" />
+            <span>{pendingCount} Pending Verifications</span>
           </span>
         </div>
       </div>
